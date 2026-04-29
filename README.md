@@ -50,23 +50,17 @@ Generate and install a custom Claude Code status line. Pick your **columns**, pi
 | `git` | Git branch name (yellow when dirty) | Only in a git repo |
 | `vim` | Vim mode indicator | Only when vim keybindings are active |
 
-#### Color-changing columns
+#### Color-changing columns (unified palette)
 
-**`context`** — bar + `%` color scale with remaining capacity:
+Both `context` and `effort` use the same traffic-light policy — green = relaxed, yellow = caution, red = pressure. One glance tells you if something is off.
 
-| Remaining | Color | Meaning |
-|-----------|-------|---------|
-| 🟢 > 50% | green | plenty left |
-| 🟡 20–50% | yellow | watch out |
-| 🔴 < 20% | red | nearly full — compact soon |
+| Intensity | Color | `context` (remaining) | `effort` (level) |
+|-----------|-------|------------------------|-------------------|
+| 🟢 relaxed | green | **> 50%** — plenty left | `low` |
+| 🟡 caution | yellow | **20–50%** — watch out | `medium` |
+| 🔴 pressure | red (bold for effort) | **< 20%** — nearly full, compact soon | `high` |
 
-**`effort`** — value colors by level:
-
-| Level | Color |
-|-------|-------|
-| `high` | **bold red** |
-| `medium` | yellow |
-| `low` | green |
+Each theme maps its own green/yellow/red shades from its palette, so the policy is consistent but the look fits the theme.
 
 #### Themes
 
