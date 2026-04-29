@@ -23,12 +23,12 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 ### 📊 webup-statusline
 
-Generate and install a custom Claude Code status line. Three axes — **columns**, **theme**, **effort icon** — combine to produce the bar you want.
+Generate and install a custom Claude Code status line. Pick your **columns**, pick a **theme** — that's it. Two columns (`context` and `effort`) also **change color based on level**, so the bar tells you at a glance where you stand.
 
 **Invoke in Claude Code:**
 
 ```
-# Interactive — skill prompts for columns, theme, and icon
+# Interactive — skill prompts for columns and theme
 /webup-statusline
 
 # Quick theme selection
@@ -43,45 +43,53 @@ Generate and install a custom Claude Code status line. Three axes — **columns*
 | Column | What it shows | When visible |
 |--------|---------------|--------------|
 | `model` | Active model name | Always |
-| `context` | Context window progress bar + percentage | Always |
-| `effort` | Reasoning effort level, **colored by intensity** — red=high, yellow=medium, green=low | When `effortLevel` is set in `~/.claude/settings.json` |
+| `context` | Context window progress bar + percentage — **color scales with remaining capacity** | Always |
+| `effort` | Reasoning effort level — **colored by intensity** | When `effortLevel` is set in `~/.claude/settings.json` |
 | `dir` | Repo directory basename (original repo when inside a worktree) | Always |
 | `worktree` | Bold **`worktree:<id>`** label | Only inside a git worktree (detected via input JSON or `git` CLI) |
 | `git` | Git branch name (yellow when dirty) | Only in a git repo |
 | `vim` | Vim mode indicator | Only when vim keybindings are active |
 
+#### Color-changing columns
+
+**`context`** — bar + `%` color scale with remaining capacity:
+
+| Remaining | Color | Meaning |
+|-----------|-------|---------|
+| 🟢 > 50% | green | plenty left |
+| 🟡 20–50% | yellow | watch out |
+| 🔴 < 20% | red | nearly full — compact soon |
+
+**`effort`** — value colors by level:
+
+| Level | Color |
+|-------|-------|
+| `high` | **bold red** |
+| `medium` | yellow |
+| `low` | green |
+
 #### Themes
 
-| Theme | Palette | Prefix icons actually rendered in the bar |
-|-------|---------|-------------------------------------------|
-| `gruvbox` | Teal model · aqua progress · yellow/green accents · gray separators | `✦` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
-| `dracula` | Purple model · green progress · cyan dir · pink worktree | `◈` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
-| `robbyrussell` | Cyan model · green progress · blue dir · magenta worktree · dim `·` separator | no prefix icons — color + labels only |
-| `minimal` | Terminal defaults; red/yellow only for high-effort and dirty-git | no prefix icons — plain text |
-
-#### Effort icon
-
-Prepended to the `effort` column only — pick the one you like:
-
-| Icon | Name |
-|------|------|
-| `⚡` | Lightning — intensity (**default**) |
-| `∴` | Therefore — reasoning |
-| `❯` | Pure/Starship prompt |
-| `➜` | Robbyrussell arrow |
-| `◉` | Filled circle |
+| Theme | Vibe | Icons rendered in the bar |
+|-------|------|----------------------------|
+| `gruvbox` | Warm retro, muted | `✦` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `dracula` | Modern dark, high saturation | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `robbyrussell` | Classic oh-my-zsh | no prefix icons — color + labels only |
+| `minimal` | Terminal defaults | no prefix icons — plain text |
 
 #### Examples
 
-Dracula, all columns, effort=high, inside a worktree:
+Dracula, all columns, remaining=51%, effort=high, inside a worktree:
 ```
 ◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
 ```
+(yellow bar, bold-red effort)
 
-Minimal, model + effort + dir + git, effort=low:
+Gruvbox Dark, model + context + effort + dir + git, remaining=88%, effort=medium:
 ```
-Claude Opus 4.7 · ⚡ low · skills-cc · main
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
 ```
+(green bar, yellow effort)
 
 > ⚠️ **Note:** The generated script requires `jq` for JSON parsing. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
 

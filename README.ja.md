@@ -23,12 +23,12 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 ### 📊 webup-statusline
 
-カスタム Claude Code ステータスラインを生成・インストール。**カラム**・**テーマ**・**努力アイコン** の 3 軸を組み合わせて、自分好みのバーを作れます。
+カスタム Claude Code ステータスラインを生成・インストール。**カラム** と **テーマ** を選ぶだけ。`context` と `effort` の 2 カラムは **レベルに応じて色が変わる** ので、一目で状況が分かります。
 
 **Claude Code での呼び出し方：**
 
 ```
-# 対話式 — カラム・テーマ・アイコンを順に選択
+# 対話式 — カラムとテーマを順に選択
 /webup-statusline
 
 # テーマ指定
@@ -43,45 +43,53 @@ npx skills add webup/skills-cc -s webup-statusline -g
 | カラム | 表示内容 | 表示条件 |
 |--------|----------|----------|
 | `model` | アクティブモデル名 | 常時 |
-| `context` | コンテキスト進捗バー + % | 常時 |
-| `effort` | 推論努力レベル。**強度で色分け** — 赤=高・黄=中・緑=低 | `~/.claude/settings.json` で `effortLevel` が設定されている時 |
+| `context` | コンテキスト進捗バー + % — **残量に応じて色が変化** | 常時 |
+| `effort` | 推論努力レベル — **強度で色分け** | `~/.claude/settings.json` で `effortLevel` が設定されている時 |
 | `dir` | リポジトリディレクトリ名（ワークツリー内では元リポジトリ名） | 常時 |
 | `worktree` | 太字の **`worktree:<id>`** ラベル | git ワークツリー内のみ（入力 JSON または `git` CLI で検出） |
 | `git` | Git ブランチ名（作業ツリーが汚れていると黄色） | git リポジトリ内のみ |
 | `vim` | Vim モード | Vim キーバインド有効時のみ |
 
+#### 色が変わるカラム
+
+**`context`** — バーと百分率が残量に応じて変化：
+
+| 残量 | 色 | 意味 |
+|------|----|----|
+| 🟢 > 50% | 緑 | 余裕あり |
+| 🟡 20–50% | 黄 | 注意 |
+| 🔴 < 20% | 赤 | 残りわずか — そろそろ圧縮 |
+
+**`effort`** — 推論強度値がレベル別に色分け：
+
+| レベル | 色 |
+|--------|----|
+| `high` | **太字赤** |
+| `medium` | 黄 |
+| `low` | 緑 |
+
 #### テーマ
 
-| テーマ | パレット | バーに実際に描画される前置アイコン |
-|--------|----------|------------------------------------|
-| `gruvbox` | ティール・アクア進捗・イエロー／グリーン・グレーセパレーター | `✦` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
-| `dracula` | パープル・グリーン進捗・シアン dir・ピンク worktree | `◈` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
-| `robbyrussell` | シアン・グリーン進捗・ブルー dir・マゼンタ worktree・ディム `·` | 前置アイコンなし — 色とラベルのみ |
-| `minimal` | 端末デフォルト色；high 努力と dirty git のみ赤黄でアクセント | 前置アイコンなし — プレーンテキスト |
-
-#### 努力アイコン
-
-`effort` カラムの前にのみ付きます — お好みで選択：
-
-| アイコン | 名前 |
-|----------|------|
-| `⚡` | 雷 — 強度（**デフォルト**） |
-| `∴` | ゆえに符号 — 推論 |
-| `❯` | Pure/Starship プロンプト |
-| `➜` | Robbyrussell 矢印 |
-| `◉` | 塗り潰し丸 |
+| テーマ | 雰囲気 | バーに実際に描画される前置アイコン |
+|--------|--------|------------------------------------|
+| `gruvbox` | レトロ暖色、落ち着いた配色 | `✦` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `dracula` | モダンダーク、彩度高め | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `robbyrussell` | クラシック oh-my-zsh | 前置アイコンなし — 色とラベルのみ |
+| `minimal` | 端末デフォルト色 | 前置アイコンなし — プレーンテキスト |
 
 #### 例
 
-Dracula、全カラム、effort=high、ワークツリー内：
+Dracula、全カラム、remaining=49%、effort=high、ワークツリー内：
 ```
 ◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
 ```
+（黄色バー、太字赤 effort）
 
-Minimal、モデル + 努力 + ディレクトリ + git、effort=low：
+Gruvbox Dark、モデル + コンテキスト + effort + ディレクトリ + git、remaining=88%、effort=medium：
 ```
-Claude Opus 4.7 · ⚡ low · skills-cc · main
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
 ```
+（緑バー、黄色 effort）
 
 > ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
 

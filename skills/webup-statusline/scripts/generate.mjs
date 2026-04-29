@@ -16,7 +16,6 @@ const hasFlag = (name) => args.includes(`--${name}`)
 
 const elements = getArg('elements', 'model,context,effort,git,dir').split(',').map(s => s.trim())
 const theme = getArg('theme', 'gruvbox')
-const icon = getArg('icon', '⚡')
 const install = hasFlag('install')
 
 // ── Theme definitions ──────────────────────────────────────────────
@@ -24,7 +23,9 @@ const themes = {
   gruvbox: {
     name: 'Gruvbox Dark',
     model:     '\\033[38;2;86;182;194m',   // bright teal
-    bar_fill:  '\\033[38;2;142;192;124m',  // aqua
+    ctx_ok:    '\\033[38;2;142;192;124m',  // aqua/green (>50% remaining)
+    ctx_warn:  '\\033[38;2;250;189;47m',   // yellow (20-50% remaining)
+    ctx_low:   '\\033[38;2;251;73;52m',    // red (<20% remaining)
     bar_empty: '\\033[38;2;80;73;69m',     // dark bg
     pct:       '\\033[38;2;251;241;199m',  // bright fg
     dir:       '\\033[38;2;152;195;121m',  // soft green
@@ -37,14 +38,15 @@ const themes = {
     effort_low:  '\\033[38;2;142;192;124m',   // green
     effort_off:  '\\033[2;38;2;168;153;132m', // dim gray
     sep:       '\\033[38;2;102;92;84m',    // gray
-    icon:      '\\033[38;2;251;241;199m',  // bright fg
     separator: ' | ',
     bar_chars: ['■', '□'],
   },
   robbyrussell: {
     name: 'Robbyrussell',
     model:     '\\033[38;5;45m',   // cyan
-    bar_fill:  '\\033[38;5;32m',   // green
+    ctx_ok:    '\\033[38;5;32m',   // green
+    ctx_warn:  '\\033[38;5;220m',  // yellow
+    ctx_low:   '\\033[38;5;196m',  // red
     bar_empty: '\\033[2m',         // dim
     pct:       '\\033[38;5;220m',  // yellow
     dir:       '\\033[38;5;39m',   // blue — softer than red for folder
@@ -57,14 +59,15 @@ const themes = {
     effort_low:  '\\033[38;5;32m',     // green
     effort_off:  '\\033[2m',           // dim
     sep:       '\\033[2m',         // dim
-    icon:      '\\033[38;5;32m',   // green
     separator: ' · ',
     bar_chars: ['━', '─'],
   },
   minimal: {
     name: 'Minimal',
     model:     '\\033[0m',
-    bar_fill:  '\\033[0m',
+    ctx_ok:    '\\033[32m',       // green
+    ctx_warn:  '\\033[33m',       // yellow
+    ctx_low:   '\\033[31m',       // red
     bar_empty: '\\033[2m',
     pct:       '\\033[0m',
     dir:       '\\033[2m',
@@ -77,14 +80,15 @@ const themes = {
     effort_low:  '\\033[32m',     // green
     effort_off:  '\\033[2m',      // dim
     sep:       '\\033[2m',
-    icon:      '\\033[0m',
     separator: ' · ',
     bar_chars: ['▰', '▱'],
   },
   dracula: {
     name: 'Dracula',
     model:     '\\033[38;2;189;147;249m',  // purple
-    bar_fill:  '\\033[38;2;80;250;123m',   // green
+    ctx_ok:    '\\033[38;2;80;250;123m',   // green
+    ctx_warn:  '\\033[38;2;241;250;140m',  // yellow
+    ctx_low:   '\\033[38;2;255;85;85m',    // red
     bar_empty: '\\033[38;2;68;71;90m',     // comment
     pct:       '\\033[38;2;248;248;242m',  // fg
     dir:       '\\033[38;2;139;233;253m',  // cyan
@@ -97,7 +101,6 @@ const themes = {
     effort_low:  '\\033[38;2;80;250;123m',     // green
     effort_off:  '\\033[2;38;2;98;114;164m',   // dim
     sep:       '\\033[38;2;98;114;164m',    // comment bright
-    icon:      '\\033[38;2;189;147;249m',  // purple
     separator: ' | ',
     bar_chars: ['■', '□'],
   },
@@ -111,10 +114,10 @@ if (!t) {
 
 // ── Element icons per theme ────────────────────────────────────────
 const elementIcons = {
-  gruvbox:      { model: '✦', context: '↯', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕' },
-  robbyrussell: { model: '',  context: '',  dir: '',  git: '',  vim: '',  worktree: ''  },
-  minimal:      { model: '',  context: '',  dir: '',  git: '',  vim: '',  worktree: ''  },
-  dracula:      { model: '◈', context: '↯', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕' },
+  gruvbox:      { model: '✦', context: '↯', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕', effort: '⚡' },
+  robbyrussell: { model: '',  context: '',  dir: '',  git: '',  vim: '',  worktree: '',  effort: ''   },
+  minimal:      { model: '',  context: '',  dir: '',  git: '',  vim: '',  worktree: '',  effort: ''   },
+  dracula:      { model: '◈', context: '↯', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕', effort: '⚡' },
 }
 const icons = elementIcons[theme]
 
@@ -130,10 +133,11 @@ function buildScript() {
   p('# Colors')
   p("readonly RST='\\033[0m'")
   p(`readonly C_MODEL='${t.model}'`)
-  p(`readonly C_BAR_FILL='${t.bar_fill}'`)
+  p(`readonly C_CTX_OK='${t.ctx_ok}'`)
+  p(`readonly C_CTX_WARN='${t.ctx_warn}'`)
+  p(`readonly C_CTX_LOW='${t.ctx_low}'`)
   p(`readonly C_BAR_EMPTY='${t.bar_empty}'`)
   p(`readonly C_PCT='${t.pct}'`)
-  p(`readonly C_STYLE='${t.style}'`)
   p(`readonly C_DIR='${t.dir}'`)
   p(`readonly C_GIT='${t.git}'`)
   p(`readonly C_GIT_DIRTY='${t.git_dirty}'`)
@@ -144,7 +148,6 @@ function buildScript() {
   p(`readonly C_EFFORT_LOW='${t.effort_low}'`)
   p(`readonly C_EFFORT_OFF='${t.effort_off}'`)
   p(`readonly C_SEP='${t.sep}'`)
-  p(`readonly C_ICON='${t.icon}'`)
   p('')
   p(`readonly SEP="${t.separator}"`)
   p('')
@@ -241,18 +244,26 @@ function buildScript() {
     p('')
   }
 
-  // Context bar builder
+  // Context bar builder — color scales with remaining capacity
+  // green (>50% left) → yellow (20-50%) → red (<20%)
   if (elements.includes('context')) {
-    p('# Progress bar')
+    p('# Progress bar (color scales with remaining context)')
     p('bar=""')
     p('if [ -n "$remaining" ]; then')
     p('  used=$((100 - remaining))')
     p('  filled=$((used / 5))')
     p('  empty=$((20 - filled))')
+    p('  if [ "$remaining" -lt 20 ]; then')
+    p('    ctx_color="$C_CTX_LOW"')
+    p('  elif [ "$remaining" -lt 50 ]; then')
+    p('    ctx_color="$C_CTX_WARN"')
+    p('  else')
+    p('    ctx_color="$C_CTX_OK"')
+    p('  fi')
     p(`  bar="\${C_SEP}[\${RST}"`)
-    p(`  for ((i=0; i<filled; i++)); do bar+="\${C_BAR_FILL}${t.bar_chars[0]}\${RST}"; done`)
+    p(`  for ((i=0; i<filled; i++)); do bar+="\${ctx_color}${t.bar_chars[0]}\${RST}"; done`)
     p(`  for ((i=0; i<empty; i++)); do bar+="\${C_BAR_EMPTY}${t.bar_chars[1]}\${RST}"; done`)
-    p(`  bar+="\${C_SEP}]\${RST} \${C_PCT}\${used}%\${RST}"`)
+    p(`  bar+="\${C_SEP}]\${RST} \${ctx_color}\${used}%\${RST}"`)
     p('fi')
     p('')
   }
@@ -283,7 +294,7 @@ function buildScript() {
   }
 
   if (elements.includes('effort')) {
-    const si = icon  // user-chosen prefix icon for effort level
+    const ei = icons.effort ? `${icons.effort} ` : ''
     p('# Color effort by level')
     p('if [ -n "$effort" ]; then')
     p('  case "$effort" in')
@@ -292,7 +303,7 @@ function buildScript() {
     p('    low|Low|LOW)          effort_color="$C_EFFORT_LOW" ;;')
     p('    *)                    effort_color="$C_EFFORT_OFF" ;;')
     p('  esac')
-    p(`  parts+=("\${effort_color}${si}\${effort}\${RST}")`)
+    p(`  parts+=("\${effort_color}${ei}\${effort}\${RST}")`)
     p('fi')
     p('')
   }
