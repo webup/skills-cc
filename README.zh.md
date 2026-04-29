@@ -61,14 +61,12 @@ Claude Code 的宠物系统是确定性的：`hash(userID + SALT)` 始终生成�
 
 ### 📊 webup-statusline
 
-生成并安装自定义 Claude Code 状态栏 —— 选择显示元素、配色主题和前缀图标。
-
-可选显示内容（模型名、上下文进度条、输出样式、Git 分支、目录、Vim 模式），选择主题（Gruvbox Dark、Dracula、Robbyrussell、Minimal），并为输出样式指示器选一个前缀图标。
+生成并安装自定义 Claude Code 状态栏。通过三个维度 —— **元素**、**主题**、**图标** —— 自由组合属于你的状态栏。
 
 **在 Claude Code 中调用：**
 
 ```
-# 交互式 — 选择元素、主题、图标
+# 交互式 — 依次选择元素、主题、图标
 /webup-statusline
 
 # 快速选择主题
@@ -78,21 +76,50 @@ Claude Code 的宠物系统是确定性的：`hash(userID + SALT)` 始终生成�
 /webup-statusline 极简主题 加上git分支和进度条
 ```
 
-**🎨 4 个主题：**
+#### 选项 1 — 元素（显示什么，可多选）
 
-| 主题 | 风格 |
+| 元素 | 显示内容 | 说明 |
+|------|----------|------|
+| 🤖 `model` | 活跃模型名 | 来自 `model.display_name` |
+| 📶 `context` | 上下文进度条 + % | 带百分比的进度条 |
+| ⚡ `effort` | 推理努力度 | **按强度着色** —— 红=高、黄=中、绿=低；未设置时自动隐藏 |
+| ⌂ `dir` | 仓库目录名 | 在工作树中显示原仓库名（而非工作树路径） |
+| ⊕ `worktree` | 工作树指示器 | **仅在工作树中出现**（通过 Claude Code JSON 或 `git` CLI 降级检测）；加粗的 `worktree:<id>` 标签 |
+| ⎇ `git` | Git 分支名 | 工作目录脏时变黄 |
+| ⌨ `vim` | Vim 模式 | 仅在开启 vim 键位时出现 |
+
+#### 选项 2 — 主题（4 款预设）
+
+| 主题 | 配色 | 风格 |
+|------|------|------|
+| 🌾 `gruvbox` | 青绿模型 · 水绿进度条 · 黄/绿点缀 · 灰色分隔 | 暖色复古，柔和护眼 |
+| 🧛 `dracula` | 紫色模型 · 绿色进度条 · 青色目录 · 粉色工作树 | 现代暗色，饱和度高 |
+| 💎 `robbyrussell` | 青色模型 · 绿色进度条 · 蓝色目录 · 品红工作树 · 暗色 `·` 分隔 | 经典 oh-my-zsh 风 |
+| 🪶 `minimal` | 使用终端默认色；仅高努力度与脏 git 用红黄点缀 | 安静单行 —— 无图标、无装饰 |
+
+#### 选项 3 — 努力度图标（effort 元素的前缀）
+
+| 图标 | 含义 |
 |------|------|
-| 🌾 Gruvbox Dark | 暖色复古 — 青绿、水绿、暖黄、柔绿 |
-| 🧛 Dracula | 现代暗色 — 紫、粉、青 |
-| 💎 Robbyrussell | 经典 oh-my-zsh — 红色目录、绿色箭头 |
-| 🪶 Minimal | 极简 — 无装饰，仅暗色分隔符 |
+| ⚡ | 闪电 —— 强度/努力（**默认**） |
+| ∴ | 因此符号 —— 推理标识 |
+| ❯ | Pure/Starship 提示符 |
+| ➜ | Robbyrussell 箭头 |
+| ◉ | 实心圆 |
 
-**输出示例**（Gruvbox Dark）：
+#### 输出示例
+
+Gruvbox Dark，全部元素，effort=high：
 ```
-✦ Opus 4.6 | [■■■■■■■■■■□□□□□□□□□□] 49% | ✦thinking | ◆ my-project | ⎇ main
+✦ Opus 4.6 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡high | ⌂ skills-cc | ⊕ worktree:46a6 | ⎇ feat/xyz
 ```
 
-> ⚠️ **注意：** 生成的状态栏脚本需要 `jq` 来解析 JSON 输入。
+Minimal，模型 + 努力度 + 目录 + git，effort=low：
+```
+Claude Opus 4.6 · ⚡low · skills-cc · main
+```
+
+> ⚠️ **注意：** 生成的状态栏脚本需要 `jq` 解析 JSON 输入。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。
 
 ## 📄 许可证
 

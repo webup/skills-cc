@@ -1,6 +1,6 @@
 ---
 name: webup-statusline
-description: Generate and install a custom Claude Code status line with selectable elements, color themes, and prefix icons. Triggers on "status line", "statusline", "customize status", "status bar", "状态栏", "ステータスライン", or similar.
+description: Generate and install a custom Claude Code status line with selectable elements (model, context, effort level, git, dir, worktree, vim), color themes, and prefix icons. Triggers on "status line", "statusline", "customize status", "status bar", "effort level display", "状态栏", "ステータスライン", or similar.
 ---
 
 # Status Line Generator
@@ -46,9 +46,9 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,style,git,
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--elements <list>` | `model,context,style,git,dir` | Comma-separated elements to display |
+| `--elements <list>` | `model,context,effort,git,dir` | Comma-separated elements to display |
 | `--theme <name>` | `gruvbox` | Color theme |
-| `--icon <char>` | `✦` | Prefix icon shown before output style name |
+| `--icon <char>` | `⚡` | Prefix icon shown before the effort level |
 | `--install` | off | Write script to `~/.claude/scripts/statusline.sh` and update `settings.json` |
 
 ### Elements
@@ -57,10 +57,15 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,style,git,
 |---------|-------------|-------------|
 | `model` | Active model name (e.g. "Opus 4.6") | `model.display_name` |
 | `context` | Context window usage — progress bar + percentage | `context_window.remaining_percentage` |
-| `style` | Output style with prefix icon (hidden when "default") | `output_style.name` |
-| `git` | Git branch name (yellow when dirty) | `git` CLI |
-| `dir` | Current directory basename | `workspace.current_dir` |
+| `effort` | Effort level colored by intensity (red=high, yellow=medium, green=low) with prefix icon | `effortLevel` in `~/.claude/settings.local.json` → `~/.claude/settings.json` |
+| `git` | Git branch name (yellow when dirty) | `worktree.branch` → git CLI |
+| `dir` | Repo basename (original repo when in a worktree) | `worktree.original_repo_dir` → `workspace.current_dir` |
+| `worktree` | Worktree name indicator (only shown when in a worktree) | `worktree.name` |
 | `vim` | Vim mode indicator | `vim.mode` |
+
+**Effort colors**: `high` renders bold red, `medium` is yellow, `low` is green, any other value renders dim. When `effortLevel` is not set in settings, the element is hidden entirely.
+
+**Worktree behavior**: When Claude Code runs inside a git worktree (via `EnterWorktree` or `--worktree`), the input JSON contains a `worktree` object. The `git` element uses `worktree.branch` first; the `dir` element prefers `worktree.original_repo_dir` basename so your status line stays stable across worktrees; the `worktree` element adds a distinct indicator (`⊕ <name>`) so you can tell at a glance that you're off the main checkout.
 
 ### Themes
 
@@ -73,12 +78,14 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,style,git,
 
 ### Prefix Icons
 
+Note: these are used for the `effort` element only. The `✦` sparkle is avoided here because themes already use it as the model icon.
+
 | Icon | Name |
 |------|------|
-| `✦` | Claude sparkle (default) |
-| `➜` | Robbyrussell arrow |
+| `⚡` | Lightning bolt (default — matches "effort/intensity") |
+| `∴` | Therefore — reasoning indicator |
 | `❯` | Pure/Starship prompt |
-| `⚡` | Lightning bolt |
+| `➜` | Robbyrussell arrow |
 | `◉` | Filled circle |
 
 ## Invocation
@@ -93,7 +100,7 @@ This skill can be invoked with or without arguments:
 The args string is free-form text. Use NLP to extract:
 
 1. **theme** — match against: gruvbox, robbyrussell, minimal, dracula. Also recognize aliases (暗黑=dracula, 极简=minimal, 复古=gruvbox, レトロ=gruvbox).
-2. **elements** — look for mentions of: model, context/进度/コンテキスト, style/样式/スタイル, git/分支/ブランチ, dir/目录/ディレクトリ, vim.
+2. **elements** — look for mentions of: model, context/进度/コンテキスト, effort/推理强度/努力度, git/分支/ブランチ, dir/目录/ディレクトリ, worktree/工作树/ワークツリー, vim.
 3. **icon** — match against the 5 prefix icons or descriptions like "dragon icon", "龙图标", "闪电".
 
 Unspecified fields use defaults: all elements except vim, gruvbox theme, ✦ icon.
@@ -105,9 +112,10 @@ Unspecified fields use defaults: all elements except vim, gruvbox theme, ✦ ico
    **Q1 — Elements** (multiSelect): Which info to show in the status line?
    - "Model name" — active Claude model
    - "Context usage" — progress bar + percentage (Recommended)
-   - "Output style" — with prefix icon, hidden when default
+   - "Effort level" — colored by level with prefix icon (Recommended)
    - "Git branch" — current branch, yellow when dirty (Recommended)
    - "Working directory" — folder name (Recommended)
+   - "Worktree" — worktree name indicator (only shown when in a worktree)
    - "Vim mode" — vim keybinding mode indicator
 
    **Q2 — Theme** (single): Color theme?
@@ -116,10 +124,10 @@ Unspecified fields use defaults: all elements except vim, gruvbox theme, ✦ ico
    - "Robbyrussell" — classic oh-my-zsh style
    - "Minimal" — no decoration, dim separators only
 
-   **Q3 — Output style prefix icon** (single): Icon shown before output style name?
-   - "✦ sparkle (Recommended)" — Claude default
+   **Q3 — Effort level prefix icon** (single): Icon shown before the effort level?
+   - "⚡ lightning (Recommended)" — intensity/effort
+   - "∴ therefore" — reasoning indicator
    - "❯ prompt" — pure/starship style
-   - "➜ arrow" — robbyrussell style
    - "◉ circle" — filled circle
 
    **If args provided**: Parse theme, elements, and icon from args. Skip the prompt.
@@ -138,19 +146,25 @@ Unspecified fields use defaults: all elements except vim, gruvbox theme, ✦ ico
 
 ## Output Examples
 
-**Gruvbox Dark** (model + context + style + dir + git):
+**Gruvbox Dark** (model + context + effort + dir + git), effort=high:
 ```
-✦ Opus 4.6 | [■■■■■■■■■■□□□□□□□□□□] 49% | ✦thinking | ◆ my-project | ⎇ main
+✦ Opus 4.6 | [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡high | ◆ my-project | ⎇ main
+```
+(effort "high" renders bold red — the more thinking, the louder the color)
+
+**Gruvbox Dark, in a worktree** (all elements), effort=medium:
+```
+✦ Opus 4.6 | [■■■■■□□□□□□□□□□□□□□□] 28% | ⚡medium | ◆ skills-cc | ⊕ my-feature | ⎇ feat/xyz
 ```
 
-**Minimal** (model + dir + git):
+**Minimal** (model + effort + dir + git), effort=low:
 ```
-Claude Opus 4.6 · skills-cc · main
+Claude Opus 4.6 · ∴low · skills-cc · main
 ```
 
-**Dracula** (all elements):
+**Dracula** (all elements), effort=high:
 ```
-◈ Opus 4.6 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡thinking | ⌨ normal | ◇ my-project | ⎇ main
+◈ Opus 4.6 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡high | ⌨ normal | ◇ my-project | ⊕ my-feature | ⎇ feat/xyz
 ```
 
 ## Notes
