@@ -25,7 +25,40 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 生成并安装自定义 Claude Code 状态栏。选择 **字段** 和 **主题**，仅此而已。其中两个字段（`context` 和 `effort`）会 **随级别动态换色**，一眼看清当前状态。
 
-**在 Claude Code 中调用：**
+#### 效果预览
+
+完整字段，剩余 49%，`effortLevel: high`，工作树内：
+
+```
+◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+```
+*Dracula 主题 —— 黄色进度条（留意）、加粗红色 effort（压力）、粉色 worktree 标签。*
+
+轻松状态 —— 剩余 88%、`effortLevel: medium`：
+```
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
+```
+*Gruvbox Dark —— 绿色进度条（轻松）、黄色 effort。*
+
+容量告急 —— 剩余 8%：
+```
+✦ Opus 4.7 | [■■■■■■■■■■■■■■■■■■■□] 92% | ⚡ high | ⌂ skills-cc | ⎇ main*
+```
+*Gruvbox Dark —— **红色进度条**（压力）、加粗红色 effort、黄色 `main*`（工作区脏）。*
+
+精简配置 —— 仅 model + git + dir，`effortLevel: low`：
+```
+Claude Opus 4.7 · low · skills-cc · main
+```
+*Minimal 主题 —— 无图标、绿色 effort。*
+
+开启 vim 模式 + 工作树：
+```
+Opus 4.7 · medium · normal · skills-cc · worktree:hotfix · feat/api
+```
+*Robbyrussell 主题 —— 青色模型、黄色 effort、品红 worktree 标签。*
+
+#### 在 Claude Code 中调用
 
 ```
 # 交互式 — 依次选择字段和主题
@@ -70,20 +103,6 @@ npx skills add webup/skills-cc -s webup-statusline -g
 | `dracula` | 现代暗色，饱和度高 | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
 | `robbyrussell` | 经典 oh-my-zsh | 无前缀图标 —— 仅靠颜色和文本 |
 | `minimal` | 终端默认色 | 无前缀图标 —— 纯文本 |
-
-#### 示例
-
-Dracula，全部字段，remaining=49%，effort=high，工作树内：
-```
-◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
-```
-（黄色进度条、加粗红色 effort）
-
-Gruvbox Dark，模型 + 上下文 + effort + 目录 + git，remaining=88%，effort=medium：
-```
-✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
-```
-（绿色进度条、黄色 effort）
 
 > ⚠️ **注意：** 生成的脚本需要 `jq` 解析 JSON。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。
 

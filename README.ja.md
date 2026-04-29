@@ -25,7 +25,40 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 カスタム Claude Code ステータスラインを生成・インストール。**カラム** と **テーマ** を選ぶだけ。`context` と `effort` の 2 カラムは **レベルに応じて色が変わる** ので、一目で状況が分かります。
 
-**Claude Code での呼び出し方：**
+#### ルック＆フィール
+
+フルセット（全カラム）、残量 49%、`effortLevel: high`、ワークツリー内：
+
+```
+◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+```
+*Dracula テーマ — 黄色バー（注意）、太字赤 effort（圧迫）、ピンク worktree ラベル。*
+
+余裕ありセッション — 残量 88%、`effortLevel: medium`：
+```
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
+```
+*Gruvbox Dark — 緑バー（余裕）、黄色 effort。*
+
+残りわずか — 残量 8%：
+```
+✦ Opus 4.7 | [■■■■■■■■■■■■■■■■■■■□] 92% | ⚡ high | ⌂ skills-cc | ⎇ main*
+```
+*Gruvbox Dark — **赤バー**（圧迫）、太字赤 effort、黄色 `main*`（dirty）。*
+
+軽量セットアップ — model + git + dir のみ、`effortLevel: low`：
+```
+Claude Opus 4.7 · low · skills-cc · main
+```
+*Minimal テーマ — アイコンなし、緑 effort。*
+
+Vim モード有効 + ワークツリー：
+```
+Opus 4.7 · medium · normal · skills-cc · worktree:hotfix · feat/api
+```
+*Robbyrussell テーマ — シアンモデル、黄色 effort、マゼンタ worktree ラベル。*
+
+#### Claude Code での呼び出し方
 
 ```
 # 対話式 — カラムとテーマを順に選択
@@ -70,20 +103,6 @@ npx skills add webup/skills-cc -s webup-statusline -g
 | `dracula` | モダンダーク、彩度高め | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
 | `robbyrussell` | クラシック oh-my-zsh | 前置アイコンなし — 色とラベルのみ |
 | `minimal` | 端末デフォルト色 | 前置アイコンなし — プレーンテキスト |
-
-#### 例
-
-Dracula、全カラム、remaining=49%、effort=high、ワークツリー内：
-```
-◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
-```
-（黄色バー、太字赤 effort）
-
-Gruvbox Dark、モデル + コンテキスト + effort + ディレクトリ + git、remaining=88%、effort=medium：
-```
-✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
-```
-（緑バー、黄色 effort）
 
 > ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
 

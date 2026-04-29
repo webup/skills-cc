@@ -25,7 +25,40 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 Generate and install a custom Claude Code status line. Pick your **columns**, pick a **theme** — that's it. Two columns (`context` and `effort`) also **change color based on level**, so the bar tells you at a glance where you stand.
 
-**Invoke in Claude Code:**
+#### What it looks like
+
+Full setup (all columns), 49% context remaining, `effortLevel: high`, inside a worktree:
+
+```
+◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+```
+*Dracula theme — yellow bar (caution), bold-red effort (pressure), pink worktree label.*
+
+Healthy session — 88% remaining, `effortLevel: medium`:
+```
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
+```
+*Gruvbox Dark — green bar (relaxed), yellow effort.*
+
+Running out of room — 8% remaining:
+```
+✦ Opus 4.7 | [■■■■■■■■■■■■■■■■■■■□] 92% | ⚡ high | ⌂ skills-cc | ⎇ main*
+```
+*Gruvbox Dark — **red bar** (pressure), bold-red effort, yellow `main*` (dirty tree).*
+
+Lean setup — just model + git + dir, `effortLevel: low`:
+```
+Claude Opus 4.7 · low · skills-cc · main
+```
+*Minimal theme — no icons, green effort.*
+
+With vim mode active, plus worktree:
+```
+Opus 4.7 · medium · normal · skills-cc · worktree:hotfix · feat/api
+```
+*Robbyrussell theme — cyan model, yellow effort, magenta worktree label.*
+
+#### Invoke in Claude Code
 
 ```
 # Interactive — skill prompts for columns and theme
@@ -70,20 +103,6 @@ Each theme maps its own green/yellow/red shades from its palette, so the policy 
 | `dracula` | Modern dark, high saturation | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
 | `robbyrussell` | Classic oh-my-zsh | no prefix icons — color + labels only |
 | `minimal` | Terminal defaults | no prefix icons — plain text |
-
-#### Examples
-
-Dracula, all columns, remaining=51%, effort=high, inside a worktree:
-```
-◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
-```
-(yellow bar, bold-red effort)
-
-Gruvbox Dark, model + context + effort + dir + git, remaining=88%, effort=medium:
-```
-✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
-```
-(green bar, yellow effort)
 
 > ⚠️ **Note:** The generated script requires `jq` for JSON parsing. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
 
