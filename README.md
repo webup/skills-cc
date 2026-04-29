@@ -14,12 +14,76 @@ npx skills find webup/skills-cc
 ```bash
 npx skills add webup/skills-cc -g
 ```
-🎯 Install only buddy-reroll globally:
+🎯 Install a single skill globally:
 ```bash
-npx skills add webup/skills-cc -s webup-buddy-reroll -g
+npx skills add webup/skills-cc -s webup-statusline -g
 ```
 
 ## 🎮 Skills
+
+### 📊 webup-statusline
+
+Generate and install a custom Claude Code status line. Three axes — **columns**, **theme**, **effort icon** — combine to produce the bar you want.
+
+**Invoke in Claude Code:**
+
+```
+# Interactive — skill prompts for columns, theme, and icon
+/webup-statusline
+
+# Quick theme selection
+/webup-statusline dracula
+
+# Natural language
+/webup-statusline minimal with git and context bar
+```
+
+#### Columns you can display (multi-select)
+
+| Column | What it shows | When visible |
+|--------|---------------|--------------|
+| `model` | Active model name | Always |
+| `context` | Context window progress bar + percentage | Always |
+| `effort` | Reasoning effort level, **colored by intensity** — red=high, yellow=medium, green=low | When `effortLevel` is set in `~/.claude/settings.json` |
+| `dir` | Repo directory basename (original repo when inside a worktree) | Always |
+| `worktree` | Bold **`worktree:<id>`** label | Only inside a git worktree (detected via input JSON or `git` CLI) |
+| `git` | Git branch name (yellow when dirty) | Only in a git repo |
+| `vim` | Vim mode indicator | Only when vim keybindings are active |
+
+#### Themes
+
+| Theme | Palette | Prefix icons actually rendered in the bar |
+|-------|---------|-------------------------------------------|
+| `gruvbox` | Teal model · aqua progress · yellow/green accents · gray separators | `✦` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `dracula` | Purple model · green progress · cyan dir · pink worktree | `◈` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `robbyrussell` | Cyan model · green progress · blue dir · magenta worktree · dim `·` separator | no prefix icons — color + labels only |
+| `minimal` | Terminal defaults; red/yellow only for high-effort and dirty-git | no prefix icons — plain text |
+
+#### Effort icon
+
+Prepended to the `effort` column only — pick the one you like:
+
+| Icon | Name |
+|------|------|
+| `⚡` | Lightning — intensity (**default**) |
+| `∴` | Therefore — reasoning |
+| `❯` | Pure/Starship prompt |
+| `➜` | Robbyrussell arrow |
+| `◉` | Filled circle |
+
+#### Examples
+
+Dracula, all columns, effort=high, inside a worktree:
+```
+◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+```
+
+Minimal, model + effort + dir + git, effort=low:
+```
+Claude Opus 4.7 · ⚡ low · skills-cc · main
+```
+
+> ⚠️ **Note:** The generated script requires `jq` for JSON parsing. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
 
 ### 🎰 webup-buddy-reroll
 
@@ -58,68 +122,6 @@ Claude Code's buddy system is deterministic: `hash(userID + SALT)` always produc
 After reroll, restart Claude Code and run `/buddy` to meet your new companion! 🎉
 
 > ⚠️ **Note:** Requires Bun runtime (`Bun.hash()` matches Claude Code's internal hashing). Node.js will produce wrong results.
-
-### 📊 webup-statusline
-
-Generate and install a custom Claude Code status line. Mix and match three options — **elements**, **theme**, **icon** — to build the bar you want.
-
-**Invoke in Claude Code:**
-
-```
-# Interactive — skill prompts you for elements, theme, icon
-/webup-statusline
-
-# Quick theme selection
-/webup-statusline dracula
-
-# Natural language
-/webup-statusline minimal with git and context bar
-```
-
-#### Option 1 — Elements (what to display, multi-select)
-
-| Element | Shows | Notes |
-|---------|-------|-------|
-| 🤖 `model` | Active model name | From `model.display_name` |
-| 📶 `context` | Context window bar + % | Color-coded progress bar with percentage used |
-| ⚡ `effort` | Reasoning effort level | **Colored by intensity** — red=high, yellow=medium, green=low; hidden when not set |
-| ⌂ `dir` | Repo directory basename | In a worktree, shows the original repo name (not the worktree path) |
-| ⊕ `worktree` | Worktree indicator | **Only appears when in a worktree** (detected via Claude Code JSON or `git` CLI fallback); bold `worktree:<id>` label |
-| ⎇ `git` | Git branch name | Yellow when the tree is dirty |
-| ⌨ `vim` | Vim mode | Only appears when vim keybindings are active |
-
-#### Option 2 — Theme (4 presets)
-
-| Theme | Palette | Vibe |
-|-------|---------|------|
-| 🌾 `gruvbox` | Teal model · aqua bar · yellow/green accents · gray separators | Warm retro, muted, easy on the eyes |
-| 🧛 `dracula` | Purple model · green bar · cyan dir · pink worktree | Modern dark, high saturation |
-| 💎 `robbyrussell` | Cyan model · green bar · blue dir · magenta worktree · dim `·` separator | Classic oh-my-zsh look |
-| 🪶 `minimal` | Default terminal colors; only red/yellow accents for high-effort and dirty-git | Quiet, single-line — no icons, no decoration |
-
-#### Option 3 — Effort icon (prefix before the colored effort level)
-
-| Icon | Meaning |
-|------|---------|
-| ⚡ | Lightning bolt — intensity (**default**) |
-| ∴ | Therefore — reasoning indicator |
-| ❯ | Pure/Starship-style prompt |
-| ➜ | Robbyrussell arrow |
-| ◉ | Filled circle |
-
-#### Output examples
-
-Gruvbox Dark, all elements, effort=high:
-```
-✦ Opus 4.6 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡high | ⌂ skills-cc | ⊕ worktree:46a6 | ⎇ feat/xyz
-```
-
-Minimal, model + effort + dir + git, effort=low:
-```
-Claude Opus 4.6 · ⚡low · skills-cc · main
-```
-
-> ⚠️ **Note:** The generated status line script requires `jq` for JSON parsing. The skill auto-writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
 
 ## 📄 License
 

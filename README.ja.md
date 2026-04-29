@@ -14,12 +14,76 @@ npx skills find webup/skills-cc
 ```bash
 npx skills add webup/skills-cc -g
 ```
-🎯 buddy-reroll のみグローバルインストール：
+🎯 単一スキルをグローバルインストール：
 ```bash
-npx skills add webup/skills-cc -s webup-buddy-reroll -g
+npx skills add webup/skills-cc -s webup-statusline -g
 ```
 
 ## 🎮 スキル一覧
+
+### 📊 webup-statusline
+
+カスタム Claude Code ステータスラインを生成・インストール。**カラム**・**テーマ**・**努力アイコン** の 3 軸を組み合わせて、自分好みのバーを作れます。
+
+**Claude Code での呼び出し方：**
+
+```
+# 対話式 — カラム・テーマ・アイコンを順に選択
+/webup-statusline
+
+# テーマ指定
+/webup-statusline dracula
+
+# 自然言語
+/webup-statusline ミニマルテーマ ブランチとコンテキストバー付き
+```
+
+#### 表示できるカラム（複数選択可）
+
+| カラム | 表示内容 | 表示条件 |
+|--------|----------|----------|
+| `model` | アクティブモデル名 | 常時 |
+| `context` | コンテキスト進捗バー + % | 常時 |
+| `effort` | 推論努力レベル。**強度で色分け** — 赤=高・黄=中・緑=低 | `~/.claude/settings.json` で `effortLevel` が設定されている時 |
+| `dir` | リポジトリディレクトリ名（ワークツリー内では元リポジトリ名） | 常時 |
+| `worktree` | 太字の **`worktree:<id>`** ラベル | git ワークツリー内のみ（入力 JSON または `git` CLI で検出） |
+| `git` | Git ブランチ名（作業ツリーが汚れていると黄色） | git リポジトリ内のみ |
+| `vim` | Vim モード | Vim キーバインド有効時のみ |
+
+#### テーマ
+
+| テーマ | パレット | バーに実際に描画される前置アイコン |
+|--------|----------|------------------------------------|
+| `gruvbox` | ティール・アクア進捗・イエロー／グリーン・グレーセパレーター | `✦` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `dracula` | パープル・グリーン進捗・シアン dir・ピンク worktree | `◈` model · `↯` context · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `robbyrussell` | シアン・グリーン進捗・ブルー dir・マゼンタ worktree・ディム `·` | 前置アイコンなし — 色とラベルのみ |
+| `minimal` | 端末デフォルト色；high 努力と dirty git のみ赤黄でアクセント | 前置アイコンなし — プレーンテキスト |
+
+#### 努力アイコン
+
+`effort` カラムの前にのみ付きます — お好みで選択：
+
+| アイコン | 名前 |
+|----------|------|
+| `⚡` | 雷 — 強度（**デフォルト**） |
+| `∴` | ゆえに符号 — 推論 |
+| `❯` | Pure/Starship プロンプト |
+| `➜` | Robbyrussell 矢印 |
+| `◉` | 塗り潰し丸 |
+
+#### 例
+
+Dracula、全カラム、effort=high、ワークツリー内：
+```
+◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+```
+
+Minimal、モデル + 努力 + ディレクトリ + git、effort=low：
+```
+Claude Opus 4.7 · ⚡ low · skills-cc · main
+```
+
+> ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
 
 ### 🎰 webup-buddy-reroll
 
@@ -58,68 +122,6 @@ Claude Code のバディシステムは決定的：`hash(userID + SALT)` は常�
 リロール後、Claude Code を再起動して `/buddy` で新しいコンパニオンを迎えましょう！🎉
 
 > ⚠️ **注意：** Bun ランタイムが必要です（`Bun.hash()` が Claude Code 内部のハッシュと一致）。Node.js では正しい結果が得られません。
-
-### 📊 webup-statusline
-
-カスタム Claude Code ステータスラインを生成・インストール。**要素**・**テーマ**・**アイコン** の 3 軸を組み合わせて、自分好みのバーを作れます。
-
-**Claude Code での呼び出し方：**
-
-```
-# 対話式 — 要素・テーマ・アイコンを順に選択
-/webup-statusline
-
-# テーマ指定
-/webup-statusline dracula
-
-# 自然言語
-/webup-statusline ミニマルテーマ ブランチとコンテキストバー付き
-```
-
-#### オプション 1 — 要素（表示内容、複数選択可）
-
-| 要素 | 表示 | 備考 |
-|------|------|------|
-| 🤖 `model` | アクティブモデル名 | `model.display_name` から |
-| 📶 `context` | コンテキストバー + % | パーセント付き進捗バー |
-| ⚡ `effort` | 努力レベル | **強度で色分け** — 赤=高・黄=中・緑=低。未設定時は自動非表示 |
-| ⌂ `dir` | リポジトリディレクトリ名 | ワークツリー内では元リポジトリ名を表示 |
-| ⊕ `worktree` | ワークツリー表示 | **ワークツリー内でのみ表示**（Claude Code JSON または `git` CLI フォールバックで検出）。太字 `worktree:<id>` ラベル |
-| ⎇ `git` | Git ブランチ名 | 作業ツリーが汚れていると黄色 |
-| ⌨ `vim` | Vim モード | Vim キーバインド有効時のみ表示 |
-
-#### オプション 2 — テーマ（4 種プリセット）
-
-| テーマ | パレット | 雰囲気 |
-|--------|----------|--------|
-| 🌾 `gruvbox` | ティール・アクア・イエロー／グリーン・グレーセパレーター | レトロ暖色、落ち着いた目に優しい配色 |
-| 🧛 `dracula` | パープル・グリーン・シアン dir・ピンク worktree | モダンダーク、彩度高め |
-| 💎 `robbyrussell` | シアン・グリーン・ブルー dir・マゼンタ worktree・ディム `·` | クラシック oh-my-zsh 風 |
-| 🪶 `minimal` | 端末デフォルト色；high 努力と dirty git のみ赤黄でアクセント | 静かな 1 行 — アイコン・装飾なし |
-
-#### オプション 3 — 努力アイコン（effort 要素のプレフィックス）
-
-| アイコン | 意味 |
-|----------|------|
-| ⚡ | 雷 — 強度／努力（**デフォルト**） |
-| ∴ | ゆえに符号 — 推論の示唆 |
-| ❯ | Pure/Starship 風プロンプト |
-| ➜ | Robbyrussell 矢印 |
-| ◉ | 塗り潰し丸 |
-
-#### 出力例
-
-Gruvbox Dark、全要素、effort=high：
-```
-✦ Opus 4.6 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡high | ⌂ skills-cc | ⊕ worktree:46a6 | ⎇ feat/xyz
-```
-
-Minimal、モデル + 努力 + ディレクトリ + git、effort=low：
-```
-Claude Opus 4.6 · ⚡low · skills-cc · main
-```
-
-> ⚠️ **注意：** 生成されたステータスラインスクリプトは JSON 解析に `jq` が必要です。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
 
 ## 📄 ライセンス
 
