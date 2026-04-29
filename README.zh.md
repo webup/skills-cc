@@ -30,13 +30,13 @@ npx skills add webup/skills-cc -s webup-statusline -g
 完整字段，剩余 49%，`effortLevel: high`，工作树内：
 
 ```
-◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 49% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+◈ Opus 4.7 | [■■■■■■■■■■□□□□□□□□□□] 49% | ↯ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
 ```
-*Dracula 主题 —— 黄色进度条（留意）、加粗红色 effort（压力）、粉色 worktree 标签。*
+*Dracula 主题 —— 黄色进度条（留意）、加粗红色 `↯ high`（压力）、粉色 worktree 标签。*
 
 轻松状态 —— 剩余 88%、`effortLevel: medium`：
 ```
-✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ↯ medium | ⌂ skills-cc | ⎇ main
 ```
 *Gruvbox Dark —— 绿色进度条（轻松）、黄色 effort。*
 
@@ -59,7 +59,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 |------|----------|----------|
 | `model` | 活跃模型名 | 始终显示 |
 | `context` | 上下文进度条 + 百分比 —— **颜色随剩余容量变化** | 始终显示 |
-| `effort` | 推理努力度 —— **按强度着色** | 当 `~/.claude/settings.json` 中设置了 `effortLevel` |
+| `effort` | 推理努力度 —— **按强度着色**（支持 `low`/`medium`/`high`/`xhigh`/`max`） | 当 `~/.claude/settings.json` 中设置了 `effortLevel` |
 | `dir` | 仓库目录名（在工作树中显示原仓库名） | 始终显示 |
 | `worktree` | 加粗的 **`worktree:<id>`** 标签 | 仅在 git 工作树中（通过输入 JSON 或 `git` CLI 检测） |
 | `git` | Git 分支名（工作目录脏时变黄） | 仅在 git 仓库中 |
@@ -71,9 +71,9 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 | 强度 | 颜色 | `context`（剩余） | `effort`（级别） |
 |------|------|-------------------|------------------|
-| 🟢 轻松 | 绿色 | **> 50%** —— 容量充足 | `low` |
+| 🟢 轻松 | 绿色 | **> 50%** —— 容量充足 | `low`（含 `xlow`、`minimal`） |
 | 🟡 留意 | 黄色 | **20–50%** —— 需注意 | `medium` |
-| 🔴 压力 | 红色（effort 加粗） | **< 20%** —— 即将用满，准备压缩 | `high` |
+| 🔴 压力 | 红色（effort 加粗） | **< 20%** —— 即将用满，准备压缩 | `high`（含 `xhigh`、`max`） |
 
 每个主题从自己的调色板里取绿/黄/红的具体色值，策略统一、视觉贴合主题。
 
@@ -81,10 +81,14 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 | 主题 | 风格 | 实际渲染的前缀图标 |
 |------|------|--------------------|
-| `gruvbox` | 暖色复古，柔和 | `✦` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
-| `dracula` | 现代暗色，饱和度高 | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `gruvbox` | 暖色复古，柔和 | `✦` model · `↯` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `dracula` | 现代暗色，饱和度高 | `◈` model · `↯` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
 | `robbyrussell` | 经典 oh-my-zsh | 无前缀图标 —— 仅靠颜色和文本 |
 | `minimal` | 终端默认色 | 无前缀图标 —— 纯文本 |
+
+`context` 字段刻意不带前缀图标 —— 彩色进度条本身已经足够醒目。
+
+**替换 effort 图标** 用 `--effort-icon`。预设值：`arrow`（`↯`，默认）、`bolt`（`ϟ`）、`flash`（`⚡`）、`reason`（`∴`）、`dot`（`◉`）、`none`（隐藏）。也可直接传入任意字符。
 
 > ⚠️ **注意：** 生成的脚本需要 `jq` 解析 JSON。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。
 

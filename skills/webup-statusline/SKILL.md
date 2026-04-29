@@ -48,6 +48,7 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,effort,git
 |------|---------|-------------|
 | `--elements <list>` | `model,context,effort,git,dir` | Comma-separated columns to display |
 | `--theme <name>` | `gruvbox` | Color theme — see table below |
+| `--effort-icon <preset>` | `arrow` (`↯`) for iconic themes, none otherwise | Override the effort prefix icon. Presets: `arrow`, `bolt`, `flash`, `reason`, `dot`, `none`. A raw character is also accepted. |
 | `--install` | off | Write script to `~/.claude/scripts/statusline.sh` and update `settings.json` |
 
 ### Columns
@@ -76,21 +77,36 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,effort,git
 
 | Level | Color |
 |-------|-------|
-| `high` | **bold red** |
+| `max`, `xhigh`, `high` | **bold red** |
 | `medium` | yellow |
-| `low` | green |
+| `low`, `xlow`, `minimal` | green |
 | other / unset | dim (or hidden when completely unset) |
 
 ### Themes
 
 | Theme | Vibe | Icons rendered in bar |
 |-------|------|------------------------|
-| `gruvbox` | Warm retro, muted | `✦` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
-| `dracula` | Modern dark, high saturation | `◈` model · `↯` context · `⚡` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `gruvbox` | Warm retro, muted | `✦` model · `↯` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
+| `dracula` | Modern dark, high saturation | `◈` model · `↯` effort · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |
 | `robbyrussell` | Classic oh-my-zsh | no prefix icons — colors + labels only |
 | `minimal` | Default terminal colors | no prefix icons — plain text |
 
-The effort prefix icon (`⚡`) is baked into each theme — iconic themes (gruvbox, dracula) include it; plain themes (robbyrussell, minimal) skip all prefix icons for a cleaner look.
+The `context` column intentionally skips a prefix icon — the colored progress bar is already visually rich. The `effort` prefix (`↯`) is baked into iconic themes and can be overridden with `--effort-icon`.
+
+### Effort icons
+
+Pass `--effort-icon <preset>` to swap the glyph in front of the effort value. Presets:
+
+| Preset | Glyph | Notes |
+|--------|-------|-------|
+| `arrow` | `↯` | Electric arrow — **default**, narrow |
+| `bolt`  | `ϟ` | Greek koppa — narrow lightning |
+| `flash` | `⚡` | Classic lightning — wide in emoji-presentation fonts |
+| `reason`| `∴` | Therefore |
+| `dot`   | `◉` | Filled circle |
+| `none`  | (hidden) | Drop the icon entirely |
+
+You can also pass any raw character as `--effort-icon <char>`.
 
 **Worktree behavior**: When inside a git worktree (detected via the input JSON's `worktree.*` fields or via `git rev-parse --git-common-dir` fallback), the `worktree` column shows a bold `worktree:<id>` label using the parent dir name (e.g. `~/.codex/worktrees/46a6/clawmaster` → `worktree:46a6`). The `git` column prefers `worktree.branch` from the input JSON; the `dir` column prefers `worktree.original_repo_dir` so the repo identity stays stable across worktrees.
 
@@ -146,13 +162,13 @@ Unspecified fields use defaults: `model,context,effort,git,dir` columns, `gruvbo
 
 **Dracula** (all columns), remaining=49%, effort=high, inside a worktree:
 ```
-◈ Opus 4.7 | ↯ [■■■■■■■■■■□□□□□□□□□□] 51% | ⚡ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
+◈ Opus 4.7 | [■■■■■■■■■■□□□□□□□□□□] 51% | ↯ high | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
 ```
-(bar yellow — 49% remaining; effort "high" bold red)
+(bar yellow — 49% remaining; effort "high" bold red; context carries no prefix icon — the bar is already visual enough)
 
 **Gruvbox Dark** (model + context + effort + dir + git), remaining=88%, effort=medium:
 ```
-✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ⚡ medium | ⌂ skills-cc | ⎇ main
+✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ↯ medium | ⌂ skills-cc | ⎇ main
 ```
 (bar green — 88% remaining; effort "medium" yellow)
 

@@ -16,6 +16,7 @@ const hasFlag = (name) => args.includes(`--${name}`)
 
 const elements = getArg('elements', 'model,context,effort,git,dir').split(',').map(s => s.trim())
 const theme = getArg('theme', 'gruvbox')
+const effortIconFlag = getArg('effort-icon', '')  // optional override; see themes.effort icons
 const install = hasFlag('install')
 
 // ── Theme definitions ──────────────────────────────────────────────
@@ -114,10 +115,30 @@ if (!t) {
 
 // ── Element icons per theme ────────────────────────────────────────
 const elementIcons = {
-  gruvbox:      { model: '✦', context: '↯', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕', effort: '⚡' },
-  robbyrussell: { model: '',  context: '',  dir: '',  git: '',  vim: '',  worktree: '',  effort: ''   },
-  minimal:      { model: '',  context: '',  dir: '',  git: '',  vim: '',  worktree: '',  effort: ''   },
-  dracula:      { model: '◈', context: '↯', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕', effort: '⚡' },
+  gruvbox:      { model: '✦', context: '', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕', effort: '↯' },
+  robbyrussell: { model: '',  context: '', dir: '',  git: '',  vim: '',  worktree: '',  effort: ''  },
+  minimal:      { model: '',  context: '', dir: '',  git: '',  vim: '',  worktree: '',  effort: ''  },
+  dracula:      { model: '◈', context: '', dir: '⌂', git: '⎇', vim: '⌨', worktree: '⊕', effort: '↯' },
+}
+
+// Effort icon presets — user can pick one via --effort-icon
+// All are narrow/text-mode glyphs; ϟ (Greek koppa) is default because it
+// reads as "lightning" while being consistently narrow in monospace fonts
+const EFFORT_ICON_PRESETS = {
+  arrow:  '↯',   // electric arrow — default (narrow, reads as intensity)
+  bolt:   'ϟ',   // Greek koppa — narrow lightning
+  flash:  '⚡',   // classic lightning — wide in emoji-presentation fonts
+  reason: '∴',   // therefore
+  dot:    '◉',   // filled circle
+  none:   '',    // hide the icon entirely
+}
+
+// Resolve effort icon: explicit flag > theme default
+function resolveEffortIcon(themeIcon) {
+  if (!effortIconFlag) return themeIcon
+  if (effortIconFlag === 'none') return ''
+  if (EFFORT_ICON_PRESETS[effortIconFlag] !== undefined) return EFFORT_ICON_PRESETS[effortIconFlag]
+  return effortIconFlag  // allow a raw character
 }
 const icons = elementIcons[theme]
 
@@ -294,14 +315,15 @@ function buildScript() {
   }
 
   if (elements.includes('effort')) {
-    const ei = icons.effort ? `${icons.effort} ` : ''
-    p('# Color effort by level')
+    const rawEi = resolveEffortIcon(icons.effort)
+    const ei = rawEi ? `${rawEi} ` : ''  // space only when icon is present
+    p('# Color effort by level (max/xhigh/high share the bold-red pressure tier)')
     p('if [ -n "$effort" ]; then')
     p('  case "$effort" in')
-    p('    high|High|HIGH)       effort_color="$C_EFFORT_HIGH" ;;')
-    p('    medium|Medium|MEDIUM) effort_color="$C_EFFORT_MED" ;;')
-    p('    low|Low|LOW)          effort_color="$C_EFFORT_LOW" ;;')
-    p('    *)                    effort_color="$C_EFFORT_OFF" ;;')
+    p('    max|MAX|Max|xhigh|XHIGH|XHigh|high|High|HIGH)  effort_color="$C_EFFORT_HIGH" ;;')
+    p('    medium|Medium|MEDIUM)                          effort_color="$C_EFFORT_MED" ;;')
+    p('    low|Low|LOW|xlow|XLow|XLOW|minimal|Minimal)    effort_color="$C_EFFORT_LOW" ;;')
+    p('    *)                                             effort_color="$C_EFFORT_OFF" ;;')
     p('  esac')
     p(`  parts+=("\${effort_color}${ei}\${effort}\${RST}")`)
     p('fi')
