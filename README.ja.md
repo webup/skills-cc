@@ -40,24 +40,6 @@ npx skills add webup/skills-cc -s webup-statusline -g
 ```
 *Gruvbox Dark — 緑バー（余裕）、黄色 effort。*
 
-残りわずか — 残量 8%：
-```
-✦ Opus 4.7 | [■■■■■■■■■■■■■■■■■■■□] 92% | ⚡ high | ⌂ skills-cc | ⎇ main*
-```
-*Gruvbox Dark — **赤バー**（圧迫）、太字赤 effort、黄色 `main*`（dirty）。*
-
-軽量セットアップ — model + git + dir のみ、`effortLevel: low`：
-```
-Claude Opus 4.7 · low · skills-cc · main
-```
-*Minimal テーマ — アイコンなし、緑 effort。*
-
-Vim モード有効 + ワークツリー：
-```
-Opus 4.7 · medium · normal · skills-cc · worktree:hotfix · feat/api
-```
-*Robbyrussell テーマ — シアンモデル、黄色 effort、マゼンタ worktree ラベル。*
-
 #### Claude Code での呼び出し方
 
 ```

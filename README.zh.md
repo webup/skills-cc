@@ -40,24 +40,6 @@ npx skills add webup/skills-cc -s webup-statusline -g
 ```
 *Gruvbox Dark —— 绿色进度条（轻松）、黄色 effort。*
 
-容量告急 —— 剩余 8%：
-```
-✦ Opus 4.7 | [■■■■■■■■■■■■■■■■■■■□] 92% | ⚡ high | ⌂ skills-cc | ⎇ main*
-```
-*Gruvbox Dark —— **红色进度条**（压力）、加粗红色 effort、黄色 `main*`（工作区脏）。*
-
-精简配置 —— 仅 model + git + dir，`effortLevel: low`：
-```
-Claude Opus 4.7 · low · skills-cc · main
-```
-*Minimal 主题 —— 无图标、绿色 effort。*
-
-开启 vim 模式 + 工作树：
-```
-Opus 4.7 · medium · normal · skills-cc · worktree:hotfix · feat/api
-```
-*Robbyrussell 主题 —— 青色模型、黄色 effort、品红 worktree 标签。*
-
 #### 在 Claude Code 中调用
 
 ```

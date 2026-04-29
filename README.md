@@ -40,24 +40,6 @@ Healthy session — 88% remaining, `effortLevel: medium`:
 ```
 *Gruvbox Dark — green bar (relaxed), yellow effort.*
 
-Running out of room — 8% remaining:
-```
-✦ Opus 4.7 | [■■■■■■■■■■■■■■■■■■■□] 92% | ⚡ high | ⌂ skills-cc | ⎇ main*
-```
-*Gruvbox Dark — **red bar** (pressure), bold-red effort, yellow `main*` (dirty tree).*
-
-Lean setup — just model + git + dir, `effortLevel: low`:
-```
-Claude Opus 4.7 · low · skills-cc · main
-```
-*Minimal theme — no icons, green effort.*
-
-With vim mode active, plus worktree:
-```
-Opus 4.7 · medium · normal · skills-cc · worktree:hotfix · feat/api
-```
-*Robbyrussell theme — cyan model, yellow effort, magenta worktree label.*
-
 #### Invoke in Claude Code
 
 ```
