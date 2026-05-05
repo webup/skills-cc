@@ -21,50 +21,36 @@ def run(cmd, input=None):
     return subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", input=input)
 
 
-def bash_check(script):
-    """Write script to a temp file and run bash -n on it.
+def bash_syntax_ok(script):
+    """Check bash syntax via ``bash -n``.
 
-    On Windows (Git Bash / MSYS2), bash -n may fail due to locale
-    or encoding mismatches. We set LC_ALL=C.UTF-8 and also try
-    passing the file via a Windows-native path.
+    On Windows (Git Bash / MSYS2), ``bash -n`` may reject UTF-8 files
+    due to locale issues that are impossible to fix from Python's
+    subprocess.  Since we only care about *structural* syntax
+    (matching if/fi, for/done, quoting, etc.) — not the byte values of
+    string literals — we strip non-ASCII before checking on Windows.
+
+    Returns (ok: bool, detail: str).
     """
+    check_script = script
+    if IS_WINDOWS:
+        check_script = script.encode("ascii", errors="replace").decode("ascii")
+
     fd, path = tempfile.mkstemp(suffix=".sh")
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-            f.write(script)
+            f.write(check_script)
         env = dict(os.environ)
         if IS_WINDOWS:
-            env["LC_ALL"] = "C.UTF-8"
-            env["LANG"] = "C.UTF-8"
-            # Prevent any BASH_ENV from interfering
+            env["LC_ALL"] = "C"
             env.pop("BASH_ENV", None)
         br = subprocess.run(
             ["bash", "-n", path],
-            capture_output=True, text=True,
-            env=env,
+            capture_output=True, text=True, env=env,
         )
-        return br
-    finally:
-        os.unlink(path)
-
-
-def bash_check_compat(script):
-    """Fallback: strip non-ASCII before bash -n on Windows.
-
-    Windows Git Bash sometimes refuses to syntax-check UTF-8 files.
-    Since we only care about bash syntax (not the exact byte values
-    of string literals), strip non-ASCII characters and re-check.
-    """
-    ascii_only = script.encode("ascii", errors="replace").decode("ascii")
-    fd, path = tempfile.mkstemp(suffix=".sh")
-    try:
-        with os.fdopen(fd, "w", encoding="ascii", newline="\n") as f:
-            f.write(ascii_only)
-        br = subprocess.run(
-            ["bash", "-n", path],
-            capture_output=True, text=True,
-        )
-        return br
+        if br.returncode == 0:
+            return True, ""
+        return False, br.stderr.strip() or f"bash -n exit code {br.returncode}"
     finally:
         os.unlink(path)
 
@@ -82,14 +68,9 @@ def main():
             script = r.stdout
 
             # 1. bash syntax check
-            #    On Windows: first try with UTF-8 file + locale;
-            #    if that fails, fall back to ASCII-stripped version.
-            br = bash_check(script)
-            if br.returncode != 0 and IS_WINDOWS:
-                br = bash_check_compat(script)
-            if br.returncode != 0:
-                stderr_detail = br.stderr.strip() if br.stderr.strip() else "(no stderr — possible locale/encoding issue)"
-                errors.append(f"FAIL bash -n {label}: {stderr_detail}")
+            ok, detail = bash_syntax_ok(script)
+            if not ok:
+                errors.append(f"FAIL bash -n {label}: {detail}")
 
             # 2. must contain jq auto-detect block
             if "command -v jq" not in script:
