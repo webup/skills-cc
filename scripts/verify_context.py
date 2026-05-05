@@ -14,6 +14,8 @@ ELEMENT_SETS = [
 ]
 GENERATOR = "skills/webup-statusline/scripts/generate.mjs"
 
+IS_WINDOWS = sys.platform == "win32"
+
 
 def run(cmd, input=None):
     return subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", input=input)
@@ -22,17 +24,23 @@ def run(cmd, input=None):
 def bash_check(script):
     """Write script to a temp file and run bash -n on it.
 
-    Piping unicode to bash -n via stdin fails on Windows (Git Bash)
-    because the encoding may not match. Writing to a file avoids this.
+    Piping unicode to bash -n via stdin fails on Windows (Git Bash),
+    and locale issues can cause bash to reject UTF-8 chars.
+    Writing to a file with a BOM-free UTF-8 encoding avoids these.
     """
     fd, path = tempfile.mkstemp(suffix=".sh")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(script)
+        env = dict(os.environ)
+        # Ensure UTF-8 locale for bash on Windows
+        if IS_WINDOWS:
+            env["LANG"] = "C.UTF-8"
+            env["BASH_ENV"] = ""
         br = subprocess.run(
             ["bash", "-n", path],
             capture_output=True, text=True,
-            env={**os.environ, "LANG": "en_US.UTF-8"},
+            env=env,
         )
         return br
     finally:
@@ -51,10 +59,10 @@ def main():
 
             script = r.stdout
 
-            # 1. bash syntax check (via temp file for Windows compat)
+            # 1. bash syntax check
             br = bash_check(script)
             if br.returncode != 0:
-                stderr_detail = br.stderr.strip() or "(no stderr — possible locale/encoding issue)"
+                stderr_detail = br.stderr.strip() if br.stderr.strip() else "(no stderr — possible locale/encoding issue)"
                 errors.append(f"FAIL bash -n {label}: {stderr_detail}")
 
             # 2. must contain jq auto-detect block
