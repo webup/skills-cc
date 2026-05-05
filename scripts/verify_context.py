@@ -3,6 +3,8 @@
 
 import subprocess
 import sys
+import tempfile
+import os
 
 THEMES = ["gruvbox", "dracula", "robbyrussell", "minimal"]
 ELEMENT_SETS = [
@@ -17,12 +19,27 @@ def run(cmd, input=None):
     return subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", input=input)
 
 
+def bash_check(script):
+    """Write script to a temp file and run bash -n on it.
+
+    Piping unicode to bash -n via stdin fails on Windows (Git Bash)
+    because the encoding may not match. Writing to a file avoids this.
+    """
+    fd, path = tempfile.mkstemp(suffix=".sh")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(script)
+        br = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
+        return br
+    finally:
+        os.unlink(path)
+
+
 def main():
     errors = []
     for theme in THEMES:
         for elements in ELEMENT_SETS:
             label = f"{theme} / {elements}"
-            # Generate the script
             r = run(["bun", GENERATOR, "--elements", elements, "--theme", theme])
             if r.returncode != 0:
                 errors.append(f"FAIL generate {label}: {r.stderr.strip()}")
@@ -30,8 +47,8 @@ def main():
 
             script = r.stdout
 
-            # 1. bash syntax check
-            br = run(["bash", "-n"], input=script)
+            # 1. bash syntax check (via temp file for Windows compat)
+            br = bash_check(script)
             if br.returncode != 0:
                 errors.append(f"FAIL bash -n {label}: {br.stderr.strip()}")
 
