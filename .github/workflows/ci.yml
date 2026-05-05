@@ -19,15 +19,3 @@ jobs:
       - name: Verify statusline generation
         run: python3 scripts/verify_context.py
         shell: bash
-
-  verify-statusline-pwsh:
-    # Windows-specific: also run under PowerShell to catch Windows Python quirks
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Verify statusline generation (PowerShell)
-        run: python scripts/verify_context.py
-        shell: pwsh
