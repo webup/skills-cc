@@ -13,8 +13,8 @@ ELEMENT_SETS = [
 GENERATOR = "skills/webup-statusline/scripts/generate.mjs"
 
 
-def run(cmd):
-    return subprocess.run(cmd, capture_output=True, text=True)
+def run(cmd, input=None):
+    return subprocess.run(cmd, capture_output=True, text=True, input=input)
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
         for elements in ELEMENT_SETS:
             label = f"{theme} / {elements}"
             # Generate the script
-            r = run(["npx", "-y", "bun", GENERATOR, "--elements", elements, "--theme", theme])
+            r = run(["bun", GENERATOR, "--elements", elements, "--theme", theme])
             if r.returncode != 0:
                 errors.append(f"FAIL generate {label}: {r.stderr.strip()}")
                 continue
@@ -31,8 +31,7 @@ def main():
             script = r.stdout
 
             # 1. bash syntax check
-            br = run(["bash", "-n"])
-            br = subprocess.run(["bash", "-n"], input=script, capture_output=True, text=True)
+            br = run(["bash", "-n"], input=script)
             if br.returncode != 0:
                 errors.append(f"FAIL bash -n {label}: {br.stderr.strip()}")
 
