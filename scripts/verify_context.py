@@ -29,7 +29,11 @@ def bash_check(script):
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(script)
-        br = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
+        br = subprocess.run(
+            ["bash", "-n", path],
+            capture_output=True, text=True,
+            env={**os.environ, "LANG": "en_US.UTF-8"},
+        )
         return br
     finally:
         os.unlink(path)
@@ -50,7 +54,8 @@ def main():
             # 1. bash syntax check (via temp file for Windows compat)
             br = bash_check(script)
             if br.returncode != 0:
-                errors.append(f"FAIL bash -n {label}: {br.stderr.strip()}")
+                stderr_detail = br.stderr.strip() or "(no stderr — possible locale/encoding issue)"
+                errors.append(f"FAIL bash -n {label}: {stderr_detail}")
 
             # 2. must contain jq auto-detect block
             if "command -v jq" not in script:
