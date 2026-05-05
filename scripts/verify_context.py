@@ -14,7 +14,7 @@ GENERATOR = "skills/webup-statusline/scripts/generate.mjs"
 
 
 def run(cmd, input=None):
-    return subprocess.run(cmd, capture_output=True, text=True, input=input)
+    return subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace", input=input)
 
 
 def main():
