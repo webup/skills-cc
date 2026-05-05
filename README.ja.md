@@ -107,7 +107,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 **effort アイコンの上書き**は `--effort-icon` で。プリセット：`arrow`（`↯`、デフォルト）、`bolt`（`ϟ`）、`flash`（`⚡`）、`reason`（`∴`）、`dot`（`◉`）、`none`（非表示）。任意の文字も受け付けます。
 
-> ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
+> ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。Windows では WinGet や scoop でインストールされた jq のパスを自動検出します。それでも jq が見つからない場合は、手動でディレクトリを PATH に追加してください。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
 
 ### 🎰 webup-buddy-reroll
 

@@ -107,7 +107,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 **替换 effort 图标** 用 `--effort-icon`。预设值：`arrow`（`↯`，默认）、`bolt`（`ϟ`）、`flash`（`⚡`）、`reason`（`∴`）、`dot`（`◉`）、`none`（隐藏）。也可直接传入任意字符。
 
-> ⚠️ **注意：** 生成的脚本需要 `jq` 解析 JSON。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。
+> ⚠️ **注意：** 生成的脚本需要 `jq` 解析 JSON。在 Windows 下，脚本会自动检测 WinGet 和 scoop 安装的 jq 路径；若仍无法找到 jq，请手动将其目录添加到 PATH。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。
 
 ### 🎰 webup-buddy-reroll
 

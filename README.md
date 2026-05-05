@@ -107,7 +107,7 @@ The `context` column intentionally has no prefix icon in any theme — the color
 
 **Override the effort icon** via `--effort-icon`. Presets: `arrow` (`↯`, default), `bolt` (`ϟ`), `flash` (`⚡`), `reason` (`∴`), `dot` (`◉`), `none` (hide). A raw character is also accepted.
 
-> ⚠️ **Note:** The generated script requires `jq` for JSON parsing. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
+> ⚠️ **Note:** The generated script requires `jq` for JSON parsing. On Windows, it auto-detects jq installed via WinGet or scoop; if jq is still not found, add its directory to your PATH manually. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
 
 ### 🎰 webup-buddy-reroll
 

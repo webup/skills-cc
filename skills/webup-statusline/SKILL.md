@@ -29,7 +29,7 @@ This skill generates a bash script tailored to your preferences and installs it 
 
 ## Prerequisites
 
-- **jq** — required by the generated status line script to parse JSON input from Claude Code
+- **jq** — required by the generated status line script to parse JSON input from Claude Code. On Windows, the script auto-detects jq installed via WinGet or scoop; if jq is still not found, add its directory to your PATH manually.
 - **Bun** — required to run the generator. Use `npx -y bun` if not installed globally.
 
 ## Usage
@@ -186,5 +186,5 @@ Claude Opus 4.7 · low · skills-cc · main
 
 - Generated script is saved to `~/.claude/scripts/statusline.sh`
 - Running the skill again overwrites the existing script — just re-run to change theme or columns
-- The script uses `jq` to parse JSON input — make sure it's installed
+- The script uses `jq` to parse JSON input — make sure it's installed. On Windows, the script auto-detects WinGet and scoop jq paths; if jq is still not found, add it to PATH manually.
 - Git dirty detection uses `--no-optional-locks` to avoid interfering with other git operations
