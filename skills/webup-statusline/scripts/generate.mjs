@@ -209,6 +209,13 @@ function buildScript() {
   p('# Read JSON from stdin')
   p('input=$(cat)')
   p('')
+  p('# Optional debug capture for replaying real Claude Code statusline payloads')
+  p('if [ -n "${WEBUP_STATUSLINE_DEBUG_DUMP:-}" ]; then')
+  p('  _debug_dir=$(dirname "$WEBUP_STATUSLINE_DEBUG_DUMP")')
+  p('  mkdir -p "$_debug_dir" 2>/dev/null || true')
+  p('  printf "%s\\n" "$input" | jq -c . >> "$WEBUP_STATUSLINE_DEBUG_DUMP" 2>/dev/null || true')
+  p('fi')
+  p('')
 
   // Extract fields based on selected elements
   if (elements.includes('model') || elements.includes('cost')) {

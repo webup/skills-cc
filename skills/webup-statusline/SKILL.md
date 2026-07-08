@@ -190,4 +190,5 @@ Claude Opus 4.7 · low · skills-cc · main
 - Git dirty detection uses `--no-optional-locks` to avoid interfering with other git operations
 - The `cost` column keeps a per-session ledger in `${XDG_STATE_HOME:-~/.local/state}/webup-statusline` keyed by `session_id` and `prompt_id`, so repeated statusline refreshes do not double-count a prompt.
 - Pricing data is read from `${XDG_CACHE_HOME:-~/.cache}/webup-model-price/catalog.json`; when missing or stale, the generated script tries to refresh `https://models.dev/catalog.json` with `curl` and otherwise falls back to Claude Code's `cost.total_cost_usd`.
-- Advanced overrides: `WEBUP_MODEL_PRICE_PROVIDER`, `WEBUP_MODEL_PRICE_CATALOG`, `WEBUP_MODEL_PRICE_CACHE_DIR`, `WEBUP_MODEL_PRICE_TTL_SECONDS`, and `WEBUP_STATUSLINE_STATE_DIR`.
+- Advanced overrides: `WEBUP_MODEL_PRICE_PROVIDER`, `WEBUP_MODEL_PRICE_CATALOG`, `WEBUP_MODEL_PRICE_CACHE_DIR`, `WEBUP_MODEL_PRICE_TTL_SECONDS`, `WEBUP_STATUSLINE_STATE_DIR`, and `WEBUP_STATUSLINE_DEBUG_DUMP`.
+- Set `WEBUP_STATUSLINE_DEBUG_DUMP=/tmp/cc-statusline.jsonl` during a real Claude Code session to capture compact statusline payloads for local replay tests.

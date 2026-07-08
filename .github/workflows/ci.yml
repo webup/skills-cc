@@ -20,6 +20,10 @@ jobs:
         run: python3 scripts/verify_model_price.py
         shell: bash
 
+      - name: Verify statusline replay fixture
+        run: python3 scripts/verify_statusline_replay.py
+        shell: bash
+
       - name: Verify statusline generation
         run: python3 scripts/verify_context.py
         shell: bash
