@@ -21,6 +21,23 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 ## 🎮 Skills
 
+### 💵 webup-model-price
+
+Look up normalized model prices from [`models.dev`](https://models.dev), with provider-aware search, cached catalog data, and token-cost estimation.
+
+```bash
+# Anthropic-hosted Claude price
+/webup-model-price claude-opus-4-7
+
+# Compare all providers/platforms with an exact match
+npx -y bun skills/webup-model-price/scripts/price.mjs --model claude-opus-4-7 --all
+
+# Estimate usage cost from token counts
+npx -y bun skills/webup-model-price/scripts/price.mjs --provider anthropic --model claude-opus-4-7 --input-tokens 100000 --output-tokens 10000
+```
+
+This skill powers the statusline cost recalculation path while staying useful on its own for model price checks and provider comparisons.
+
 ### 📊 webup-statusline
 
 Generate and install a custom Claude Code status line. Pick your **columns**, pick a **theme** — that's it. Two columns (`context` and `effort`) also **change color based on level**, so the bar tells you at a glance where you stand.
@@ -74,7 +91,7 @@ Healthy session — 88% remaining, `effortLevel: medium`, default output style (
 |--------|---------------|--------------|
 | `model` | Active model name | Always |
 | `context` | Context window progress bar + percentage — **color scales with remaining capacity** | Always |
-| `cost` | Session API spend as `$X.XX` in gold (e.g. `$0.42`) | When `cost.total_cost_usd` rounds to ≥ $0.01 |
+| `cost` | Recalculated session spend as `$X.XX` in gold (e.g. `$0.42`) using the current model's models.dev price, with Claude Code's `cost.total_cost_usd` as fallback | When the displayed value rounds to ≥ $0.01 |
 | `effort` | Reasoning effort level — **colored by intensity** (supports `low`/`medium`/`high`/`xhigh`/`max`) | When `effortLevel` is set in `~/.claude/settings.json` |
 | `style` | Output style name (e.g. `Explanatory`, `Learning`) — shown in purple to match Claude's brand hue | When `output_style.name` is anything other than `default` |
 | `dir` | Repo directory basename (original repo when inside a worktree) | Always |
@@ -107,7 +124,7 @@ The `context` column intentionally has no prefix icon in any theme — the color
 
 **Override the effort icon** via `--effort-icon`. Presets: `arrow` (`↯`, default), `bolt` (`ϟ`), `flash` (`⚡`), `reason` (`∴`), `dot` (`◉`), `none` (hide). A raw character is also accepted.
 
-> ⚠️ **Note:** The generated script requires `jq` for JSON parsing. On Windows, it auto-detects jq installed via WinGet or scoop; if jq is still not found, add its directory to your PATH manually. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
+> ⚠️ **Note:** The generated script requires `jq` for JSON parsing. On Windows, it auto-detects jq installed via WinGet, Chocolatey, or scoop; if jq is still not found, add its directory to your PATH manually. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.
 
 ### 🎰 webup-buddy-reroll
 
