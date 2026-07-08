@@ -14,6 +14,14 @@ PRICE_FIXTURE = Path("tests/fixtures/models-dev-catalog.json")
 EVENT_FIXTURE = ROOT / "tests/fixtures/statusline-events.jsonl"
 
 
+def bash_command(*args):
+    if os.name == "nt":
+        git_bash = Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Git/bin/bash.exe"
+        if git_bash.exists():
+            return [str(git_bash), *args]
+    return ["bash", *args]
+
+
 def run(cmd, **kwargs):
     return subprocess.run(
         cmd,
@@ -58,9 +66,9 @@ def main():
         expected_costs = ["$0.45", "$1.20", "$1.20"]
         events = EVENT_FIXTURE.read_text(encoding="utf-8").splitlines()
         for index, (event, expected) in enumerate(zip(events, expected_costs), start=1):
-            result = run(["bash", script_path.relative_to(ROOT).as_posix()], input=event, env=env)
+            result = run(bash_command(script_path.relative_to(ROOT).as_posix()), input=event, env=env)
             if result.returncode != 0:
-                traced = run(["bash", "-x", script_path.relative_to(ROOT).as_posix()], input=event, env=env)
+                traced = run(bash_command("-x", script_path.relative_to(ROOT).as_posix()), input=event, env=env)
                 print(
                     f"event {index} failed with exit {result.returncode}\n"
                     f"STDOUT={result.stdout!r}\n"
