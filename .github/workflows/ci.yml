@@ -16,6 +16,11 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Install jq on Windows
+        if: runner.os == 'Windows'
+        run: choco install jq -y
+        shell: powershell
+
       - name: Verify model price skill
         run: python3 scripts/verify_model_price.py
         shell: bash
