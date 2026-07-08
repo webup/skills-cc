@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Price"
+  short_description: "Lookup normalized models.dev prices"
+  default_prompt: "Use $webup-model-price to look up the latest per-token price for claude-opus-4-7."

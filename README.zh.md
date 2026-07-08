@@ -21,6 +21,23 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 ## 🎮 技能列表
 
+### 💵 webup-model-price
+
+从 [`models.dev`](https://models.dev) 查询并标准化模型价格，支持指定 provider、跨平台比较、缓存 catalog，以及根据 token 数估算费用。
+
+```bash
+# 查询 Anthropic Claude 价格
+/webup-model-price claude-opus-4-7
+
+# 查看所有精确匹配的平台价格
+npx -y bun skills/webup-model-price/scripts/price.mjs --model claude-opus-4-7 --all
+
+# 根据 token 数估算费用
+npx -y bun skills/webup-model-price/scripts/price.mjs --provider anthropic --model claude-opus-4-7 --input-tokens 100000 --output-tokens 10000
+```
+
+这个技能会被状态栏的费用重算逻辑复用，也可以单独用于查价和比较平台价格。
+
 ### 📊 webup-statusline
 
 生成并安装自定义 Claude Code 状态栏。选择 **字段** 和 **主题**，仅此而已。其中两个字段（`context` 和 `effort`）会 **随级别动态换色**，一眼看清当前状态。
@@ -74,7 +91,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 |------|----------|----------|
 | `model` | 活跃模型名 | 始终显示 |
 | `context` | 上下文进度条 + 百分比 —— **颜色随剩余容量变化** | 始终显示 |
-| `cost` | 会话累计消费 `$X.XX`（金色，例如 `$0.42`） | 当 `cost.total_cost_usd` 四舍五入后 ≥ $0.01 |
+| `cost` | 按当前模型的 models.dev 单价重算会话消费 `$X.XX`（金色，例如 `$0.42`），无法重算时回退到 Claude Code 的 `cost.total_cost_usd` | 当显示值四舍五入后 ≥ $0.01 |
 | `effort` | 推理努力度 —— **按强度着色**（支持 `low`/`medium`/`high`/`xhigh`/`max`） | 当 `~/.claude/settings.json` 中设置了 `effortLevel` |
 | `style` | 输出样式名（例如 `Explanatory`、`Learning`）—— 紫色呼应 Claude 品牌色 | 当 `output_style.name` 不是 `default` 时 |
 | `dir` | 仓库目录名（在工作树中显示原仓库名） | 始终显示 |
@@ -107,7 +124,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 **替换 effort 图标** 用 `--effort-icon`。预设值：`arrow`（`↯`，默认）、`bolt`（`ϟ`）、`flash`（`⚡`）、`reason`（`∴`）、`dot`（`◉`）、`none`（隐藏）。也可直接传入任意字符。
 
-> ⚠️ **注意：** 生成的脚本需要 `jq` 解析 JSON。在 Windows 下，脚本会自动检测 WinGet 和 scoop 安装的 jq 路径；若仍无法找到 jq，请手动将其目录添加到 PATH。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。
+> ⚠️ **注意：** 生成的脚本需要 `jq` 解析 JSON。在 Windows 下，脚本会自动检测 WinGet 和 scoop 安装的 jq 路径；若仍无法找到 jq，请手动将其目录添加到 PATH。本技能会自动写入 `~/.claude/scripts/statusline.sh` 并更新 `~/.claude/settings.json` —— 重启 Claude Code 即可生效。`cost` 字段会把每个 `prompt_id` 的重算费用记录到本地状态目录，避免状态栏重复刷新时重复计费。
 
 ### 🎰 webup-buddy-reroll
 

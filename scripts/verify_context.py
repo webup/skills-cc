@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import os
+import json
 
 THEMES = ["gruvbox", "dracula", "robbyrussell", "minimal"]
 ELEMENT_SETS = [
@@ -13,6 +14,7 @@ ELEMENT_SETS = [
     "model,context,cost,effort,style,git,dir,worktree,vim",
 ]
 GENERATOR = "skills/webup-statusline/scripts/generate.mjs"
+PRICE_FIXTURE = os.path.abspath("tests/fixtures/models-dev-catalog.json")
 
 IS_WINDOWS = sys.platform == "win32"
 
@@ -43,6 +45,106 @@ def bash_syntax_ok(script):
         return False, br.stderr.strip()
     finally:
         os.unlink(path)
+
+
+def run_statusline_script(script, payload, env):
+    fd, path = tempfile.mkstemp(suffix=".sh")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(script)
+        return subprocess.run(
+            ["bash", path],
+            input=json.dumps(payload),
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            env={**os.environ, **env},
+        )
+    finally:
+        os.unlink(path)
+
+
+def statusline_payload(model_id, display_name, prompt_id):
+    return {
+        "session_id": "verify-model-switch",
+        "prompt_id": prompt_id,
+        "model": {
+            "id": model_id,
+            "display_name": display_name,
+        },
+        "workspace": {
+            "current_dir": os.getcwd(),
+        },
+        "cost": {
+            "total_cost_usd": 0.01,
+        },
+        "context_window": {
+            "remaining_percentage": 90,
+            "total_input_tokens": 100000,
+            "total_output_tokens": 10000,
+            "context_window_size": 200000,
+            "current_usage": {
+                "input_tokens": 100000,
+                "output_tokens": 10000,
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 0,
+            },
+        },
+    }
+
+
+def model_switch_cost_ok(script):
+    """Verify cost is recomputed from per-model prices and repeated refreshes do not double-count."""
+    if IS_WINDOWS:
+        return True, "(skipped on Windows — Linux/macOS CI covers execution)"
+
+    with tempfile.TemporaryDirectory() as state_dir:
+        env = {
+            "WEBUP_MODEL_PRICE_CATALOG": PRICE_FIXTURE,
+            "WEBUP_STATUSLINE_STATE_DIR": state_dir,
+        }
+
+        missing = run_statusline_script(
+            script,
+            statusline_payload("unknown-model", "Unknown Model", "prompt-missing"),
+            env,
+        )
+        if missing.returncode != 0:
+            return False, f"missing-price fallback render failed: {missing.stderr.strip()}"
+        if "$0.01" not in missing.stdout:
+            return False, f"missing-price fallback expected Claude Code $0.01, got: {missing.stdout!r}"
+
+        first = run_statusline_script(
+            script,
+            statusline_payload("claude-sonnet-4-6", "Claude Sonnet 4.6", "prompt-1"),
+            env,
+        )
+        if first.returncode != 0:
+            return False, f"first render failed: {first.stderr.strip()}"
+        if "$0.45" not in first.stdout:
+            return False, f"first render expected $0.45, got: {first.stdout!r}"
+
+        second = run_statusline_script(
+            script,
+            statusline_payload("claude-opus-4-7", "Claude Opus 4.7", "prompt-2"),
+            env,
+        )
+        if second.returncode != 0:
+            return False, f"second render failed: {second.stderr.strip()}"
+        if "$1.20" not in second.stdout:
+            return False, f"second render expected $1.20, got: {second.stdout!r}"
+
+        repeat = run_statusline_script(
+            script,
+            statusline_payload("claude-opus-4-7", "Claude Opus 4.7", "prompt-2"),
+            env,
+        )
+        if repeat.returncode != 0:
+            return False, f"repeat render failed: {repeat.stderr.strip()}"
+        if "$1.20" not in repeat.stdout:
+            return False, f"repeat render expected $1.20 without double-counting, got: {repeat.stdout!r}"
+
+    return True, ""
 
 
 def main():
@@ -91,6 +193,11 @@ def main():
                     errors.append(f"FAIL missing worktree field in {label}")
                 if el == "vim" and "vim.mode" not in script:
                     errors.append(f"FAIL missing vim field in {label}")
+
+            if theme == "minimal" and elements == "model,context,cost,effort,style,git,dir,worktree,vim":
+                ok, detail = model_switch_cost_ok(script)
+                if not ok:
+                    errors.append(f"FAIL model switch cost ledger {label}: {detail}")
 
     if errors:
         for e in errors:

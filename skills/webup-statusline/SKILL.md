@@ -1,6 +1,6 @@
 ---
 name: webup-statusline
-description: Generate and install a custom Claude Code status line with selectable columns (model, context, effort level, git, dir, worktree, vim) and a color theme. Context and effort elements color-change based on level. Triggers on "status line", "statusline", "customize status", "status bar", "effort level display", "状态栏", "ステータスライン", or similar.
+description: Generate and install a custom Claude Code status line with selectable columns (model, context, recalculated cost, effort level, git, dir, worktree, vim) and a color theme. Context and effort elements color-change based on level; cost can be recalculated from models.dev prices when token usage is available. Triggers on "status line", "statusline", "customize status", "status bar", "cost display", "effort level display", "状态栏", "ステータスライン", or similar.
 ---
 
 # Status Line Generator
@@ -57,7 +57,7 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,effort,git
 |--------|-------------|-------------|
 | `model` | Active model name (e.g. "Opus 4.7") | `model.display_name` |
 | `context` | Progress bar + percentage — **color changes with remaining capacity** | `context_window.remaining_percentage` |
-| `cost` | Session API spend formatted as `$X.XX` in gold — hidden when rounds to `$0.00` | `cost.total_cost_usd` from input JSON |
+| `cost` | Recalculated session spend formatted as `$X.XX` in gold — hidden when rounds to `$0.00` | `model.id` + `context_window.current_usage` + `models.dev` Anthropic prices, falling back to `cost.total_cost_usd` |
 | `effort` | Reasoning effort level — **color changes with level** | `effortLevel` in `~/.claude/settings.local.json` → `~/.claude/settings.json` |
 | `style` | Output style name (e.g. Explanatory, Learning) — hidden when "default" | `output_style.name` from input JSON |
 | `git` | Git branch name (yellow when dirty) | `worktree.branch` → git CLI |
@@ -168,7 +168,7 @@ Unspecified fields use defaults: `model,context,effort,git,dir` columns, `gruvbo
 ```
 ◈ Opus 4.7 | [■■■■■■■■■■□□□□□□□□□□] 51% | $0.42 | ↯ high | ❋ Explanatory | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz
 ```
-(bar yellow — 49% remaining; `$0.42` gold session spend next to the bar; effort "high" bold red; purple `❋ Explanatory` sits between effort and dir; context carries no prefix icon — the bar is already visual enough)
+(bar yellow — 49% remaining; `$0.42` gold recalculated spend next to the bar; effort "high" bold red; purple `❋ Explanatory` sits between effort and dir; context carries no prefix icon — the bar is already visual enough)
 
 **Gruvbox Dark** (model + context + effort + dir + git), remaining=88%, effort=medium:
 ```
@@ -188,3 +188,6 @@ Claude Opus 4.7 · low · skills-cc · main
 - Running the skill again overwrites the existing script — just re-run to change theme or columns
 - The script uses `jq` to parse JSON input — make sure it's installed. On Windows, the script auto-detects WinGet and scoop jq paths; if jq is still not found, add it to PATH manually.
 - Git dirty detection uses `--no-optional-locks` to avoid interfering with other git operations
+- The `cost` column keeps a per-session ledger in `${XDG_STATE_HOME:-~/.local/state}/webup-statusline` keyed by `session_id` and `prompt_id`, so repeated statusline refreshes do not double-count a prompt.
+- Pricing data is read from `${XDG_CACHE_HOME:-~/.cache}/webup-model-price/catalog.json`; when missing or stale, the generated script tries to refresh `https://models.dev/catalog.json` with `curl` and otherwise falls back to Claude Code's `cost.total_cost_usd`.
+- Advanced overrides: `WEBUP_MODEL_PRICE_PROVIDER`, `WEBUP_MODEL_PRICE_CATALOG`, `WEBUP_MODEL_PRICE_CACHE_DIR`, `WEBUP_MODEL_PRICE_TTL_SECONDS`, and `WEBUP_STATUSLINE_STATE_DIR`.

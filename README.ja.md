@@ -21,6 +21,23 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 ## 🎮 スキル一覧
 
+### 💵 webup-model-price
+
+[`models.dev`](https://models.dev) からモデル価格を取得して正規化します。provider 指定、複数プラットフォーム比較、catalog キャッシュ、token 数からの費用見積もりに対応します。
+
+```bash
+# Anthropic Claude の価格
+/webup-model-price claude-opus-4-7
+
+# 完全一致する全プロバイダーの価格を比較
+npx -y bun skills/webup-model-price/scripts/price.mjs --model claude-opus-4-7 --all
+
+# token 数から費用を見積もる
+npx -y bun skills/webup-model-price/scripts/price.mjs --provider anthropic --model claude-opus-4-7 --input-tokens 100000 --output-tokens 10000
+```
+
+ステータスラインのコスト再計算でも使えるほか、単体で価格確認や provider 比較にも使えます。
+
 ### 📊 webup-statusline
 
 カスタム Claude Code ステータスラインを生成・インストール。**カラム** と **テーマ** を選ぶだけ。`context` と `effort` の 2 カラムは **レベルに応じて色が変わる** ので、一目で状況が分かります。
@@ -74,7 +91,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 |--------|----------|----------|
 | `model` | アクティブモデル名 | 常時 |
 | `context` | コンテキスト進捗バー + % — **残量に応じて色が変化** | 常時 |
-| `cost` | セッション API 支出 `$X.XX`（ゴールド、例：`$0.42`） | `cost.total_cost_usd` が四捨五入して ≥ $0.01 の時 |
+| `cost` | 現在モデルの models.dev 単価で再計算したセッション支出 `$X.XX`（ゴールド、例：`$0.42`）。再計算できない場合は Claude Code の `cost.total_cost_usd` にフォールバック | 表示値が四捨五入して ≥ $0.01 の時 |
 | `effort` | 推論努力レベル — **強度で色分け**（`low`/`medium`/`high`/`xhigh`/`max` 対応） | `~/.claude/settings.json` で `effortLevel` が設定されている時 |
 | `style` | 出力スタイル名（例：`Explanatory`、`Learning`）— Claude のブランドカラーに合わせたパープル | `output_style.name` が `default` 以外の時 |
 | `dir` | リポジトリディレクトリ名（ワークツリー内では元リポジトリ名） | 常時 |
@@ -107,7 +124,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 **effort アイコンの上書き**は `--effort-icon` で。プリセット：`arrow`（`↯`、デフォルト）、`bolt`（`ϟ`）、`flash`（`⚡`）、`reason`（`∴`）、`dot`（`◉`）、`none`（非表示）。任意の文字も受け付けます。
 
-> ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。Windows では WinGet や scoop でインストールされた jq のパスを自動検出します。それでも jq が見つからない場合は、手動でディレクトリを PATH に追加してください。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。
+> ⚠️ **注意：** 生成されたスクリプトは JSON 解析に `jq` が必要です。Windows では WinGet や scoop でインストールされた jq のパスを自動検出します。それでも jq が見つからない場合は、手動でディレクトリを PATH に追加してください。スキルは `~/.claude/scripts/statusline.sh` を自動生成し `~/.claude/settings.json` を更新します。Claude Code を再起動すると反映されます。`cost` カラムは `prompt_id` ごとの再計算結果をローカル状態ディレクトリに記録し、ステータスラインの再描画で二重計上しないようにします。
 
 ### 🎰 webup-buddy-reroll
 
