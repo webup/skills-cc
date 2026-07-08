@@ -60,7 +60,15 @@ def main():
         for index, (event, expected) in enumerate(zip(events, expected_costs), start=1):
             result = run(["bash", script_path.relative_to(ROOT).as_posix()], input=event, env=env)
             if result.returncode != 0:
-                print(f"event {index} failed:\n{result.stderr}", file=sys.stderr)
+                traced = run(["bash", "-x", script_path.relative_to(ROOT).as_posix()], input=event, env=env)
+                print(
+                    f"event {index} failed with exit {result.returncode}\n"
+                    f"STDOUT={result.stdout!r}\n"
+                    f"STDERR={result.stderr!r}\n"
+                    f"TRACE STDOUT={traced.stdout!r}\n"
+                    f"TRACE STDERR={traced.stderr!r}",
+                    file=sys.stderr,
+                )
                 return result.returncode
             if expected not in result.stdout:
                 print(f"event {index} expected {expected}, got {result.stdout!r}", file=sys.stderr)
