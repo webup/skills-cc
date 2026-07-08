@@ -167,6 +167,7 @@ function buildScript() {
     '  for _jq_dir in \\',
     '    "/c/Users/$USERNAME/AppData/Local/Microsoft/WinGet/Links" \\',
     '    "/c/Users/$USERNAME/AppData/Local/Microsoft/WinGet/Packages/jqlang.jq_Microsoft.Winget.Source_8wekyb3d8bbwe" \\',
+    '    "/c/ProgramData/chocolatey/bin" \\',
     '    "$HOME/scoop/shims" \\',
     '  ; do',
     '    if [ -d "$_jq_dir" ] && { [ -x "$_jq_dir/jq" ] || [ -x "$_jq_dir/jq.exe" ]; }; then',

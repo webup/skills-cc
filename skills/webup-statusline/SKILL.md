@@ -29,7 +29,7 @@ This skill generates a bash script tailored to your preferences and installs it 
 
 ## Prerequisites
 
-- **jq** — required by the generated status line script to parse JSON input from Claude Code. On Windows, the script auto-detects jq installed via WinGet or scoop; if jq is still not found, add its directory to your PATH manually.
+- **jq** — required by the generated status line script to parse JSON input from Claude Code. On Windows, the script auto-detects jq installed via WinGet, Chocolatey, or scoop; if jq is still not found, add its directory to your PATH manually.
 - **Bun** — required to run the generator. Use `npx -y bun` if not installed globally.
 
 ## Usage
@@ -186,7 +186,7 @@ Claude Opus 4.7 · low · skills-cc · main
 
 - Generated script is saved to `~/.claude/scripts/statusline.sh`
 - Running the skill again overwrites the existing script — just re-run to change theme or columns
-- The script uses `jq` to parse JSON input — make sure it's installed. On Windows, the script auto-detects WinGet and scoop jq paths; if jq is still not found, add it to PATH manually.
+- The script uses `jq` to parse JSON input — make sure it's installed. On Windows, the script auto-detects WinGet, Chocolatey, and scoop jq paths; if jq is still not found, add it to PATH manually.
 - Git dirty detection uses `--no-optional-locks` to avoid interfering with other git operations
 - The `cost` column keeps a per-session ledger in `${XDG_STATE_HOME:-~/.local/state}/webup-statusline` keyed by `session_id` and `prompt_id`, so repeated statusline refreshes do not double-count a prompt.
 - Pricing data is read from `${XDG_CACHE_HOME:-~/.cache}/webup-model-price/catalog.json`; when missing or stale, the generated script tries to refresh `https://models.dev/catalog.json` with `curl` and otherwise falls back to Claude Code's `cost.total_cost_usd`.
