@@ -220,13 +220,9 @@ function buildScript() {
     p("ctx_window_size=$(echo \"$input\" | jq -r '.context_window.context_window_size // empty')")
   }
   if (elements.includes('effort')) {
-    p('# Read effort level from settings (local overrides global)')
-    p('effort=""')
-    p('for f in "$HOME/.claude/settings.local.json" "$HOME/.claude/.claude/settings.local.json" "$HOME/.claude/settings.json"; do')
-    p('  if [ -z "$effort" ] && [ -f "$f" ]; then')
-    p('    effort=$(jq -r \'.effortLevel // empty\' "$f" 2>/dev/null)')
-    p('  fi')
-    p('done')
+    p('# Effort comes from the session JSON. settings.json only holds a configured')
+    p('# default, which is absent unless the user set one explicitly.')
+    p("effort=$(echo \"$input\" | jq -r '.effort.level // empty')")
   }
   if (elements.includes('dir') || elements.includes('git')) {
     p("current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir // \"\"')")

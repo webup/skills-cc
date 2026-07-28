@@ -77,7 +77,7 @@ def main():
                     errors.append(f"FAIL missing model field in {label}")
                 if el == "context" and "remaining_percentage" not in script:
                     errors.append(f"FAIL missing context field in {label}")
-                if el == "effort" and "effortLevel" not in script:
+                if el == "effort" and "effort.level" not in script:
                     errors.append(f"FAIL missing effort field in {label}")
                 if el == "git" and "branch --show-current" not in script:
                     errors.append(f"FAIL missing git field in {label}")

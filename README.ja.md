@@ -27,7 +27,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 #### ルック＆フィール
 
-フルセット（全カラム）、残量 49%、セッションコスト $0.42、`effortLevel: high`、出力スタイル `Explanatory`、ワークツリー内：
+フルセット（全カラム）、残量 49%、セッションコスト $0.42、`effort: high`、出力スタイル `Explanatory`、ワークツリー内：
 
 <img src="./docs/examples/dracula-full.svg" alt="Dracula テーマ全カラムの例" />
 
@@ -41,7 +41,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 </details>
 
-余裕ありセッション — 残量 88%、`effortLevel: medium`、出力スタイル default（非表示）：
+余裕ありセッション — 残量 88%、`effort: medium`、出力スタイル default（非表示）：
 
 <img src="./docs/examples/gruvbox-healthy.svg" alt="Gruvbox テーマ余裕セッションの例" />
 
@@ -75,7 +75,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 | `model` | アクティブモデル名 | 常時 |
 | `context` | コンテキスト進捗バー + % — **残量に応じて色が変化** | 常時 |
 | `cost` | セッション API 支出 `$X.XX`（ゴールド、例：`$0.42`） | `cost.total_cost_usd` が四捨五入して ≥ $0.01 の時 |
-| `effort` | 推論努力レベル — **強度で色分け**（`low`/`medium`/`high`/`xhigh`/`max` 対応） | `~/.claude/settings.json` で `effortLevel` が設定されている時 |
+| `effort` | 推論努力レベル — **強度で色分け**（`low`/`medium`/`high`/`xhigh`/`max` 対応） | `effort.level` が存在する時 |
 | `style` | 出力スタイル名（例：`Explanatory`、`Learning`）— Claude のブランドカラーに合わせたパープル | `output_style.name` が `default` 以外の時 |
 | `dir` | リポジトリディレクトリ名（ワークツリー内では元リポジトリ名） | 常時 |
 | `worktree` | 太字の **`worktree:<id>`** ラベル | git ワークツリー内のみ（入力 JSON または `git` CLI で検出） |
