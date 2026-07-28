@@ -27,7 +27,7 @@ Generate and install a custom Claude Code status line. Pick your **columns**, pi
 
 #### What it looks like
 
-Full setup (all columns), 49% context remaining, session cost $0.42, `effortLevel: high`, output style `Explanatory`, inside a worktree:
+Full setup (all columns), 49% context remaining, session cost $0.42, `effort: high`, output style `Explanatory`, inside a worktree:
 
 <img src="./docs/examples/dracula-full.svg" alt="Dracula theme with all columns: purple model, yellow context bar, gold cost, bold-red effort, purple output style, cyan dir, pink worktree, orange git branch" />
 
@@ -41,7 +41,7 @@ Full setup (all columns), 49% context remaining, session cost $0.42, `effortLeve
 
 </details>
 
-Healthy session — 88% remaining, `effortLevel: medium`, default output style (hidden):
+Healthy session — 88% remaining, `effort: medium`, default output style (hidden):
 
 <img src="./docs/examples/gruvbox-healthy.svg" alt="Gruvbox theme healthy session: teal model, green context bar at 12% used, yellow effort medium, green dir, blue git main" />
 
@@ -75,7 +75,7 @@ Healthy session — 88% remaining, `effortLevel: medium`, default output style (
 | `model` | Active model name | Always |
 | `context` | Context window progress bar + percentage — **color scales with remaining capacity** | Always |
 | `cost` | Session API spend as `$X.XX` in gold (e.g. `$0.42`) | When `cost.total_cost_usd` rounds to ≥ $0.01 |
-| `effort` | Reasoning effort level — **colored by intensity** (supports `low`/`medium`/`high`/`xhigh`/`max`) | When `effortLevel` is set in `~/.claude/settings.json` |
+| `effort` | Reasoning effort level — **colored by intensity** (supports `low`/`medium`/`high`/`xhigh`/`max`) | When `effort.level` is present |
 | `style` | Output style name (e.g. `Explanatory`, `Learning`) — shown in purple to match Claude's brand hue | When `output_style.name` is anything other than `default` |
 | `dir` | Repo directory basename (original repo when inside a worktree) | Always |
 | `worktree` | Bold **`worktree:<id>`** label | Only inside a git worktree (detected via input JSON or `git` CLI) |

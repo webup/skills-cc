@@ -27,7 +27,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 #### 效果预览
 
-完整字段，剩余 49%，累计消费 $0.42，`effortLevel: high`，输出样式 `Explanatory`，工作树内：
+完整字段，剩余 49%，累计消费 $0.42，`effort: high`，输出样式 `Explanatory`，工作树内：
 
 <img src="./docs/examples/dracula-full.svg" alt="Dracula 主题全字段示例" />
 
@@ -41,7 +41,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 
 </details>
 
-轻松状态 —— 剩余 88%、`effortLevel: medium`，输出样式 default（隐藏）：
+轻松状态 —— 剩余 88%、`effort: medium`，输出样式 default（隐藏）：
 
 <img src="./docs/examples/gruvbox-healthy.svg" alt="Gruvbox 主题轻松状态" />
 
@@ -75,7 +75,7 @@ npx skills add webup/skills-cc -s webup-statusline -g
 | `model` | 活跃模型名 | 始终显示 |
 | `context` | 上下文进度条 + 百分比 —— **颜色随剩余容量变化** | 始终显示 |
 | `cost` | 会话累计消费 `$X.XX`（金色，例如 `$0.42`） | 当 `cost.total_cost_usd` 四舍五入后 ≥ $0.01 |
-| `effort` | 推理努力度 —— **按强度着色**（支持 `low`/`medium`/`high`/`xhigh`/`max`） | 当 `~/.claude/settings.json` 中设置了 `effortLevel` |
+| `effort` | 推理努力度 —— **按强度着色**（支持 `low`/`medium`/`high`/`xhigh`/`max`） | 当 `effort.level` 存在时 |
 | `style` | 输出样式名（例如 `Explanatory`、`Learning`）—— 紫色呼应 Claude 品牌色 | 当 `output_style.name` 不是 `default` 时 |
 | `dir` | 仓库目录名（在工作树中显示原仓库名） | 始终显示 |
 | `worktree` | 加粗的 **`worktree:<id>`** 标签 | 仅在 git 工作树中（通过输入 JSON 或 `git` CLI 检测） |

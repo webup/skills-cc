@@ -58,7 +58,7 @@ npx -y bun ${SKILL_DIR}/scripts/generate.mjs --elements model,context,effort,git
 | `model` | Active model name (e.g. "Opus 4.7") | `model.display_name` |
 | `context` | Progress bar + percentage — **color changes with remaining capacity** | `context_window.remaining_percentage` |
 | `cost` | Session API spend formatted as `$X.XX` in gold — hidden when rounds to `$0.00` | `cost.total_cost_usd` from input JSON |
-| `effort` | Reasoning effort level — **color changes with level** | `effortLevel` in `~/.claude/settings.local.json` → `~/.claude/settings.json` |
+| `effort` | Reasoning effort level — **color changes with level** | `effort.level` from input JSON |
 | `style` | Output style name (e.g. Explanatory, Learning) — hidden when "default" | `output_style.name` from input JSON |
 | `git` | Git branch name (yellow when dirty) | `worktree.branch` → git CLI |
 | `dir` | Repo basename (original repo when in a worktree) | `worktree.original_repo_dir` → `workspace.current_dir` |
